@@ -1,4 +1,4 @@
-Food-Code project
+Food-Code Project
 
 @Rahul Rajpal
 @Atharva Kadam
