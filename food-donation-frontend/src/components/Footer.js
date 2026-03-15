@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Footer() {
+function Footer({ currentUser }) {
     return (
         <footer className="footer">
             <div className="footer-container">
@@ -13,8 +13,12 @@ function Footer() {
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="/">Home</a></li>
-                        <li><a href="/browse">Browse Donations</a></li>
-                        <li><a href="/donate">Donate Food</a></li>
+                        {(!currentUser || currentUser.userType === 'receiver' || currentUser.userType === 'admin') && (
+                            <li><a href="/browse">Browse Food</a></li>
+                        )}
+                        {(currentUser?.userType === 'donor' || currentUser?.userType === 'admin') && (
+                            <li><a href="/donate">Donate Food</a></li>
+                        )}
                     </ul>
                 </div>
 

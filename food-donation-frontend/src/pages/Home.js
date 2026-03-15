@@ -34,7 +34,11 @@ function Home({ onLogin }) {
                 password: formData.password
             });
             onLogin(response.data);
-            navigate('/browse');
+            if (response.data.userType === 'donor') {
+                navigate('/dashboard');
+            } else {
+                navigate('/browse');
+            }
         } catch (err) {
             setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
         } finally {
@@ -50,7 +54,11 @@ function Home({ onLogin }) {
         try {
             const response = await userAPI.register(formData);
             onLogin(response.data);
-            navigate('/browse');
+            if (response.data.userType === 'donor') {
+                navigate('/dashboard');
+            } else {
+                navigate('/browse');
+            }
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed. Please try again.');
         } finally {

@@ -10,13 +10,16 @@ function Dashboard({ currentUser }) {
     const [myRequests, setMyRequests] = useState([]);
     const [donationsWithRequests, setDonationsWithRequests] = useState({});
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('donations');
+    const [activeTab, setActiveTab] = useState(currentUser?.userType === 'receiver' ? 'requests' : 'donations');
     const [showFeedbackForm, setShowFeedbackForm] = useState(null);
     const [showFeedbackDisplay, setShowFeedbackDisplay] = useState(null);
     const [editingDonation, setEditingDonation] = useState(null);
 
     useEffect(() => {
-        fetchDashboardData();
+        if (currentUser) {
+            setActiveTab(currentUser.userType === 'receiver' ? 'requests' : 'donations');
+            fetchDashboardData();
+        }
     }, [currentUser]);
 
     const fetchDashboardData = async () => {
@@ -136,20 +139,22 @@ function Dashboard({ currentUser }) {
                 </div>
             </div>
 
-            <div className="dashboard-tabs">
-                <button
-                    className={activeTab === 'donations' ? 'tab active' : 'tab'}
-                    onClick={() => setActiveTab('donations')}
-                >
-                    🍽️ My Donations
-                </button>
-                <button
-                    className={activeTab === 'requests' ? 'tab active' : 'tab'}
-                    onClick={() => setActiveTab('requests')}
-                >
-                    📋 My Requests
-                </button>
-            </div>
+            {currentUser.userType === 'admin' && (
+                <div className="dashboard-tabs">
+                    <button
+                        className={activeTab === 'donations' ? 'tab active' : 'tab'}
+                        onClick={() => setActiveTab('donations')}
+                    >
+                        🍽️ My Donations
+                    </button>
+                    <button
+                        className={activeTab === 'requests' ? 'tab active' : 'tab'}
+                        onClick={() => setActiveTab('requests')}
+                    >
+                        📋 My Requests
+                    </button>
+                </div>
+            )}
 
             {loading ? (
                 <div className="loading">Loading dashboard...</div>

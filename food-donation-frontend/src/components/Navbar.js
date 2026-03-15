@@ -24,14 +24,18 @@ function Navbar({ currentUser, onLogout }) {
                     <li className="nav-item">
                         <Link to="/" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                     </li>
-                    <li className="nav-item">
-                        <Link to="/browse" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Browse Donations</Link>
-                    </li>
+                    {(!currentUser || currentUser.userType === 'receiver' || currentUser.userType === 'admin') && (
+                        <li className="nav-item">
+                            <Link to="/browse" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Browse Food</Link>
+                        </li>
+                    )}
                     {currentUser && (
                         <>
-                            <li className="nav-item">
-                                <Link to="/donate" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Donate Food</Link>
-                            </li>
+                            {(currentUser.userType === 'donor' || currentUser.userType === 'admin') && (
+                                <li className="nav-item">
+                                    <Link to="/donate" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Donate Food</Link>
+                                </li>
+                            )}
                             <li className="nav-item">
                                 <Link to="/dashboard" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
                             </li>

@@ -125,18 +125,24 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
                     </div>
 
                     <div className="profile-stats-grid">
-                        <div className="profile-stat">
-                            <span className="profile-stat-number">{stats.totalDonations}</span>
-                            <span className="profile-stat-label">Donations</span>
-                        </div>
-                        <div className="profile-stat">
-                            <span className="profile-stat-number">{stats.totalRequests}</span>
-                            <span className="profile-stat-label">Requests</span>
-                        </div>
-                        <div className="profile-stat">
-                            <span className="profile-stat-number">{stats.completedDonations}</span>
-                            <span className="profile-stat-label">Completed</span>
-                        </div>
+                        {(currentUser.userType === 'donor' || currentUser.userType === 'admin') && (
+                            <div className="profile-stat">
+                                <span className="profile-stat-number">{stats.totalDonations}</span>
+                                <span className="profile-stat-label">Donations</span>
+                            </div>
+                        )}
+                        {(currentUser.userType === 'receiver' || currentUser.userType === 'admin') && (
+                            <div className="profile-stat">
+                                <span className="profile-stat-number">{stats.totalRequests}</span>
+                                <span className="profile-stat-label">Requests</span>
+                            </div>
+                        )}
+                        {(currentUser.userType === 'donor' || currentUser.userType === 'admin') && (
+                            <div className="profile-stat">
+                                <span className="profile-stat-number">{stats.completedDonations}</span>
+                                <span className="profile-stat-label">Completed</span>
+                            </div>
+                        )}
                         <div className="profile-stat">
                             <span className="profile-stat-number">{stats.totalFeedback}</span>
                             <span className="profile-stat-label">Feedbacks</span>

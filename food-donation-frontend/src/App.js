@@ -56,7 +56,7 @@ function App() {
                         />
                     </Routes>
                 </main>
-                <Footer />
+                <Footer currentUser={currentUser} />
             </div>
         </Router>
     );
