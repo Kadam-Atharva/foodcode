@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { donationAPI, requestAPI } from '../services/api';
+import { donationAPI, requestAPI, userAPI } from '../services/api';
 import DonationCard from '../components/DonationCard';
 import FeedbackForm from '../components/FeedbackForm';
 import FeedbackDisplay from '../components/FeedbackDisplay';
@@ -15,6 +15,7 @@ function Dashboard({ currentUser }) {
     const [showFeedbackDisplay, setShowFeedbackDisplay] = useState(null);
     const [editingDonation, setEditingDonation] = useState(null);
     const [userMap, setUserMap] = useState({});
+    const [requestDonations, setRequestDonations] = useState({});
 
     useEffect(() => {
         if (currentUser) {
@@ -42,6 +43,16 @@ function Dashboard({ currentUser }) {
             // Fetch user's requests (if receiver)
             const myRequestsResponse = await requestAPI.getRequestsByReceiverId(currentUser.userId);
             setMyRequests(myRequestsResponse.data);
+
+            // Fetch donation details for each request to show info to receiver
+            const reqDonMap = {};
+            for (const req of myRequestsResponse.data) {
+                if (!reqDonMap[req.donationId]) {
+                    const donRes = await donationAPI.getDonationById(req.donationId);
+                    reqDonMap[req.donationId] = donRes.data;
+                }
+            }
+            setRequestDonations(reqDonMap);
 
             // Fetch all users to map IDs to names
             const usersResponse = await userAPI.getAllUsers();
@@ -290,13 +301,18 @@ function Dashboard({ currentUser }) {
                                     {myRequests.map((request) => (
                                         <div key={request.requestId} className="request-card">
                                             <div className="request-card-header">
-                                                <h3>Request #{request.requestId}</h3>
+                                                <h3>{requestDonations[request.donationId]?.foodType || 'Food Donation'}</h3>
                                                 <span className={`status-badge ${request.status}`}>
                                                     {getStatusBadge(request.status)}
                                                 </span>
                                             </div>
-                                            <p><strong>Donation ID:</strong> {request.donationId}</p>
+                                            <p><strong>Donor:</strong> {userMap[requestDonations[request.donationId]?.userId]?.name || 'Loading...'}</p>
                                             <p><strong>Requested on:</strong> {new Date(request.requestDate).toLocaleString('en-IN')}</p>
+                                            {request.status === 'approved' && (
+                                                <p className="contact-info-text">
+                                                    📞 <strong>Donor Contact:</strong> {userMap[requestDonations[request.donationId]?.userId]?.phoneNumber || 'N/A'}
+                                                </p>
+                                            )}
                                             {request.pickupTime && (
                                                 <p><strong>Pickup Time:</strong> {new Date(request.pickupTime).toLocaleString('en-IN')}</p>
                                             )}
@@ -340,6 +356,38 @@ function Dashboard({ currentUser }) {
                                             )}
                                         </div>
                                     ))}
+                                </div>
+                            )}
+
+                            {myRequests.filter(r => r.status === 'approved' || r.status === 'completed').length > 0 && (
+                                <div className="history-section mt-4">
+                                    <h2>🍱 My Support History</h2>
+                                    <div className="admin-table-wrapper">
+                                        <table className="admin-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Food Item</th>
+                                                    <th>Donor Name</th>
+                                                    <th>Donor Contact</th>
+                                                    <th>Date</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {myRequests
+                                                    .filter(r => r.status === 'approved' || r.status === 'completed')
+                                                    .map(r => (
+                                                        <tr key={r.requestId}>
+                                                            <td><strong>{requestDonations[r.donationId]?.foodType || 'Food'}</strong></td>
+                                                            <td>{userMap[requestDonations[r.donationId]?.userId]?.name || 'Unknown'}</td>
+                                                            <td>{userMap[requestDonations[r.donationId]?.userId]?.phoneNumber || 'N/A'}</td>
+                                                            <td>{new Date(r.requestDate).toLocaleDateString()}</td>
+                                                            <td><span className={`status-badge ${r.status}`}>{r.status}</span></td>
+                                                        </tr>
+                                                    ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             )}
                         </div>
