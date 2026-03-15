@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { donationAPI, fileAPI } from '../services/api';
 
@@ -9,8 +9,13 @@ function DonatePage({ currentUser }) {
         quantity: '',
         expiryTime: '',
         pickupAddress: '',
-        description: ''
+        description: '',
+        latitude: null,
+        longitude: null
     });
+    const mapRef = useRef(null);
+    const markerRef = useRef(null);
+    const mapInstanceRef = useRef(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
@@ -51,7 +56,9 @@ function DonatePage({ currentUser }) {
                 quantity: '',
                 expiryTime: '',
                 pickupAddress: '',
-                description: ''
+                description: '',
+                latitude: null,
+                longitude: null
             });
 
             // Redirect to dashboard after 2 seconds
@@ -63,6 +70,62 @@ function DonatePage({ currentUser }) {
         } finally {
             setLoading(false);
         }
+    };
+
+    useEffect(() => {
+        if (window.google && mapRef.current) {
+            // Default center (Mumbai if no location)
+            const defaultPos = { lat: 19.0760, lng: 72.8777 };
+            
+            const map = new window.google.maps.Map(mapRef.current, {
+                center: defaultPos,
+                zoom: 12,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false
+            });
+            mapInstanceRef.current = map;
+
+            const marker = new window.google.maps.Marker({
+                position: defaultPos,
+                map: map,
+                draggable: true,
+                title: "Drag to set pickup location"
+            });
+            markerRef.current = marker;
+
+            // Try to get user's current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const userPos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    map.setCenter(userPos);
+                    marker.setPosition(userPos);
+                    updateCoords(userPos.lat, userPos.lng);
+                });
+            }
+
+            marker.addListener('dragend', () => {
+                const pos = marker.getPosition();
+                updateCoords(pos.lat(), pos.lng());
+            });
+
+            map.addListener('click', (e) => {
+                const pos = e.latLng;
+                marker.setPosition(pos);
+                updateCoords(pos.lat(), pos.lng());
+            });
+        }
+    }, []);
+
+    const updateCoords = (lat, lng) => {
+        setFormData(prev => ({
+            ...prev,
+            latitude: lat,
+            longitude: lng
+        }));
     };
 
     return (
@@ -156,6 +219,26 @@ function DonatePage({ currentUser }) {
                                 rows="3"
                                 required
                             />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Pin Location on Map *</label>
+                            <p className="small-text">Drag the marker or click on the map to set exact location</p>
+                            <div 
+                                ref={mapRef} 
+                                style={{ 
+                                    width: '100%', 
+                                    height: '300px', 
+                                    borderRadius: '8px', 
+                                    border: '1px solid #ddd',
+                                    marginBottom: '1rem' 
+                                }}
+                            ></div>
+                            {formData.latitude && (
+                                <p className="success-text" style={{ fontSize: '0.85rem' }}>
+                                    📍 Coordinates Set: {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}
+                                </p>
+                            )}
                         </div>
 
                         <div className="form-group">

@@ -32,6 +32,8 @@ CREATE TABLE food_donations (
     status ENUM('available', 'claimed', 'completed') NOT NULL DEFAULT 'available',
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     image_url VARCHAR(255),
+    latitude DOUBLE,
+    longitude DOUBLE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     INDEX idx_status (status),
     INDEX idx_user_id (user_id),

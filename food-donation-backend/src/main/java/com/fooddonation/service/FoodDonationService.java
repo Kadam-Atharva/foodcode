@@ -70,6 +70,8 @@ public class FoodDonationService {
         if (donationDetails.getImageUrl() != null) {
             donation.setImageUrl(donationDetails.getImageUrl());
         }
+        donation.setLatitude(donationDetails.getLatitude());
+        donation.setLongitude(donationDetails.getLongitude());
         FoodDonation updated = foodDonationRepository.save(donation);
         logger.info("Successfully updated donation details for ID: {}", id);
         return updated;

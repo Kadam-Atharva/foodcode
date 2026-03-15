@@ -1964,3 +1964,35 @@ body {
   font-style: italic;
 }
 
+.success-text {
+  color: #2e7d32;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.map-view-container {
+  margin-top: 2rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.map-legend {
+  margin-top: 1rem;
+  background: #f1f8e9;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-sm);
+  color: #2e7d32;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

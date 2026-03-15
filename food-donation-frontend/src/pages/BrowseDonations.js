@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { donationAPI, requestAPI } from '../services/api';
 import DonationCard from '../components/DonationCard';
 import FeedbackDisplay from '../components/FeedbackDisplay';
@@ -12,6 +12,10 @@ function BrowseDonations({ currentUser }) {
     const [successMessage, setSuccessMessage] = useState('');
     const [expandedFeedback, setExpandedFeedback] = useState(null);
     const [useServerSearch, setUseServerSearch] = useState(false);
+    const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'map'
+    const browseMapRef = useRef(null);
+    const mapInstanceRef = useRef(null);
+    const markersRef = useRef([]);
 
     useEffect(() => {
         fetchDonations();
@@ -69,6 +73,74 @@ function BrowseDonations({ currentUser }) {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (viewMode === 'map' && window.google && browseMapRef.current) {
+            // Default center
+            const mumbai = { lat: 19.0760, lng: 72.8777 };
+            
+            const map = new window.google.maps.Map(browseMapRef.current, {
+                center: mumbai,
+                zoom: 11,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false
+            });
+            mapInstanceRef.current = map;
+
+            // Clear old markers
+            markersRef.current.forEach(m => m.setMap(null));
+            markersRef.current = [];
+
+            // Add markers
+            const bounds = new window.google.maps.LatLngBounds();
+            let hasPoints = false;
+
+            filteredDonations.forEach(donation => {
+                if (donation.latitude && donation.longitude) {
+                    hasPoints = true;
+                    const pos = { lat: donation.latitude, lng: donation.longitude };
+                    
+                    const marker = new window.google.maps.Marker({
+                        position: pos,
+                        map: map,
+                        title: donation.foodType,
+                        animation: window.google.maps.Animation.DROP
+                    });
+
+                    const infoWindow = new window.google.maps.InfoWindow({
+                        content: `
+                            <div style="color: #333; padding: 5px;">
+                                <h4 style="margin: 0 0 5px 0;">${donation.foodType}</h4>
+                                <p style="margin: 0 0 5px 0;"><b>Qty:</b> ${donation.quantity}</p>
+                                <p style="margin: 0 0 10px 0;">${donation.pickupAddress}</p>
+                                <button onclick="window.requestFromMap(${donation.donationId})" style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                                    Request Now
+                                </button>
+                            </div>
+                        `
+                    });
+
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+
+                    markersRef.current.push(marker);
+                    bounds.extend(pos);
+                }
+            });
+
+            if (hasPoints) {
+                map.fitBounds(bounds);
+            }
+
+            // Expose a global function for InfoWindow button
+            window.requestFromMap = (id) => {
+                const donation = filteredDonations.find(d => d.donationId === id);
+                if (donation) handleRequestClick(donation);
+            };
+        }
+    }, [viewMode, filteredDonations]);
 
     const handleRequestClick = async (donation) => {
         if (!currentUser) {
@@ -129,6 +201,20 @@ function BrowseDonations({ currentUser }) {
                     {!loading && (
                         <span>{filteredDonations.length} donation{filteredDonations.length !== 1 ? 's' : ''} found</span>
                     )}
+                    <div className="view-toggle">
+                        <button 
+                            className={`btn btn-small ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline'}`}
+                            onClick={() => setViewMode('grid')}
+                        >
+                            📱 Grid View
+                        </button>
+                        <button 
+                            className={`btn btn-small ${viewMode === 'map' ? 'btn-primary' : 'btn-outline'}`}
+                            onClick={() => setViewMode('map')}
+                        >
+                            📍 Map View
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -152,31 +238,49 @@ function BrowseDonations({ currentUser }) {
                             </p>
                         </div>
                     ) : (
-                        <div className="donations-grid">
-                            {filteredDonations.map((donation) => (
-                                <div key={donation.donationId} className="donation-card-wrapper">
-                                    <DonationCard
-                                        donation={donation}
-                                        onRequestClick={handleRequestClick}
-                                        currentUser={currentUser}
-                                        showActions={true}
-                                    />
-                                    <div className="browse-card-extras">
-                                        <button
-                                            className="btn btn-outline btn-small"
-                                            onClick={() => toggleFeedback(donation.donationId)}
-                                        >
-                                            ⭐ {expandedFeedback === donation.donationId ? 'Hide' : 'View'} Reviews
-                                        </button>
-                                    </div>
-                                    {expandedFeedback === donation.donationId && (
-                                        <div className="browse-feedback-section">
-                                            <FeedbackDisplay donationId={donation.donationId} />
+                        viewMode === 'grid' ? (
+                            <div className="donations-grid">
+                                {filteredDonations.map((donation) => (
+                                    <div key={donation.donationId} className="donation-card-wrapper">
+                                        <DonationCard
+                                            donation={donation}
+                                            onRequestClick={handleRequestClick}
+                                            currentUser={currentUser}
+                                            showActions={true}
+                                        />
+                                        <div className="browse-card-extras">
+                                            <button
+                                                className="btn btn-outline btn-small"
+                                                onClick={() => toggleFeedback(donation.donationId)}
+                                            >
+                                                ⭐ {expandedFeedback === donation.donationId ? 'Hide' : 'View'} Reviews
+                                            </button>
                                         </div>
-                                    )}
+                                        {expandedFeedback === donation.donationId && (
+                                            <div className="browse-feedback-section">
+                                                <FeedbackDisplay donationId={donation.donationId} />
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="map-view-container">
+                                <div 
+                                    ref={browseMapRef} 
+                                    style={{ 
+                                        width: '100%', 
+                                        height: '600px', 
+                                        borderRadius: '12px', 
+                                        boxShadow: 'var(--shadow-lg)',
+                                        border: '1px solid #ddd'
+                                    }}
+                                ></div>
+                                <div className="map-legend">
+                                    <p>📍 Click on markers to see details and request food directly from the map.</p>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        )
                     )}
                 </div>
             )}
