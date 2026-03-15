@@ -3,6 +3,9 @@ package com.fooddonation.service;
 import com.fooddonation.model.FoodDonation;
 import com.fooddonation.model.FoodDonation.DonationStatus;
 import com.fooddonation.repository.FoodDonationRepository;
+import com.fooddonation.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -10,13 +13,18 @@ import java.util.List;
 @Service
 public class FoodDonationService {
     
+    private static final Logger logger = LoggerFactory.getLogger(FoodDonationService.class);
+    
     @Autowired
     private FoodDonationRepository foodDonationRepository;
     
     // Create new donation
     public FoodDonation createDonation(FoodDonation donation) {
+        logger.info("Creating a new food donation for user ID: {}", donation.getUserId());
         donation.setStatus(DonationStatus.available);
-        return foodDonationRepository.save(donation);
+        FoodDonation savedDonation = foodDonationRepository.save(donation);
+        logger.info("Successfully created donation with ID: {}", savedDonation.getDonationId());
+        return savedDonation;
     }
     
     // Get all donations
@@ -26,8 +34,12 @@ public class FoodDonationService {
     
     // Get donation by ID
     public FoodDonation getDonationById(Integer id) {
+        logger.debug("Fetching donation by ID: {}", id);
         return foodDonationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Donation not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("Donation not found with id: {}", id);
+                    return new ResourceNotFoundException("Donation not found with id: " + id);
+                });
     }
     
     // Get donations by user ID
@@ -47,6 +59,7 @@ public class FoodDonationService {
     
     // Update donation
     public FoodDonation updateDonation(Integer id, FoodDonation donationDetails) {
+        logger.info("Attempting to update donation details for ID: {}", id);
         FoodDonation donation = getDonationById(id);
         donation.setFoodType(donationDetails.getFoodType());
         donation.setQuantity(donationDetails.getQuantity());
@@ -54,7 +67,9 @@ public class FoodDonationService {
         donation.setPickupAddress(donationDetails.getPickupAddress());
         donation.setDescription(donationDetails.getDescription());
         donation.setStatus(donationDetails.getStatus());
-        return foodDonationRepository.save(donation);
+        FoodDonation updated = foodDonationRepository.save(donation);
+        logger.info("Successfully updated donation details for ID: {}", id);
+        return updated;
     }
     
     // Update donation status
@@ -66,7 +81,9 @@ public class FoodDonationService {
     
     // Delete donation
     public void deleteDonation(Integer id) {
+        logger.info("Attempting to delete donation with ID: {}", id);
         FoodDonation donation = getDonationById(id);
         foodDonationRepository.delete(donation);
+        logger.info("Successfully deleted donation with ID: {}", id);
     }
 }

@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/requests")
-@CrossOrigin(origins = "*")
 public class RequestController {
     
     @Autowired
@@ -21,13 +20,9 @@ public class RequestController {
     
     // Create new request
     @PostMapping
-    public ResponseEntity<?> createRequest(@RequestBody Request request) {
-        try {
-            Request createdRequest = requestService.createRequest(request);
-            return new ResponseEntity<>(createdRequest, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Request> createRequest(@RequestBody Request request) {
+        Request createdRequest = requestService.createRequest(request);
+        return new ResponseEntity<>(createdRequest, HttpStatus.CREATED);
     }
     
     // Get all requests
@@ -39,13 +34,9 @@ public class RequestController {
     
     // Get request by ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getRequestById(@PathVariable Integer id) {
-        try {
-            Request request = requestService.getRequestById(id);
-            return new ResponseEntity<>(request, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Request> getRequestById(@PathVariable Integer id) {
+        Request request = requestService.getRequestById(id);
+        return new ResponseEntity<>(request, HttpStatus.OK);
     }
     
     // Get requests by donation ID
@@ -64,35 +55,23 @@ public class RequestController {
     
     // Update request status
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateRequestStatus(@PathVariable Integer id, @RequestBody Map<String, String> statusMap) {
-        try {
-            RequestStatus status = RequestStatus.valueOf(statusMap.get("status"));
-            Request updatedRequest = requestService.updateRequestStatus(id, status);
-            return new ResponseEntity<>(updatedRequest, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Request> updateRequestStatus(@PathVariable Integer id, @RequestBody Map<String, String> statusMap) {
+        RequestStatus status = RequestStatus.valueOf(statusMap.get("status"));
+        Request updatedRequest = requestService.updateRequestStatus(id, status);
+        return new ResponseEntity<>(updatedRequest, HttpStatus.OK);
     }
     
     // Update request
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateRequest(@PathVariable Integer id, @RequestBody Request request) {
-        try {
-            Request updatedRequest = requestService.updateRequest(id, request);
-            return new ResponseEntity<>(updatedRequest, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Request> updateRequest(@PathVariable Integer id, @RequestBody Request request) {
+        Request updatedRequest = requestService.updateRequest(id, request);
+        return new ResponseEntity<>(updatedRequest, HttpStatus.OK);
     }
     
     // Delete request
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteRequest(@PathVariable Integer id) {
-        try {
-            requestService.deleteRequest(id);
-            return new ResponseEntity<>(Map.of("message", "Request deleted successfully"), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Map<String, String>> deleteRequest(@PathVariable Integer id) {
+        requestService.deleteRequest(id);
+        return new ResponseEntity<>(Map.of("message", "Request deleted successfully"), HttpStatus.OK);
     }
 }

@@ -3,12 +3,17 @@ package com.fooddonation.service;
 import com.fooddonation.model.Request;
 import com.fooddonation.model.Request.RequestStatus;
 import com.fooddonation.repository.RequestRepository;
+import com.fooddonation.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
 public class RequestService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(RequestService.class);
     
     @Autowired
     private RequestRepository requestRepository;
@@ -18,8 +23,11 @@ public class RequestService {
     
     // Create new request
     public Request createRequest(Request request) {
+        logger.info("Creating a new request for donation ID: {}", request.getDonationId());
         request.setStatus(RequestStatus.pending);
-        return requestRepository.save(request);
+        Request savedRequest = requestRepository.save(request);
+        logger.info("Successfully created request with ID: {}", savedRequest.getRequestId());
+        return savedRequest;
     }
     
     // Get all requests
@@ -29,8 +37,12 @@ public class RequestService {
     
     // Get request by ID
     public Request getRequestById(Integer id) {
+        logger.debug("Fetching request by ID: {}", id);
         return requestRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Request not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("Request not found with id: {}", id);
+                    return new ResourceNotFoundException("Request not found with id: " + id);
+                });
     }
     
     // Get requests by donation ID
@@ -45,22 +57,27 @@ public class RequestService {
     
     // Update request status
     public Request updateRequestStatus(Integer id, RequestStatus status) {
+        logger.info("Attempting to update status for request ID: {} to {}", id, status);
         Request request = getRequestById(id);
         request.setStatus(status);
         
         // If request is approved, update donation status to claimed
         if (status == RequestStatus.approved) {
+            logger.info("Request approved. Updating donation ID: {} to claimed", request.getDonationId());
             foodDonationService.updateDonationStatus(
                 request.getDonationId(), 
                 com.fooddonation.model.FoodDonation.DonationStatus.claimed
             );
         }
         
-        return requestRepository.save(request);
+        Request updated = requestRepository.save(request);
+        logger.info("Successfully updated status for request ID: {}", id);
+        return updated;
     }
     
     // Update request
     public Request updateRequest(Integer id, Request requestDetails) {
+        logger.info("Updating request details for ID: {}", id);
         Request request = getRequestById(id);
         request.setPickupTime(requestDetails.getPickupTime());
         request.setStatus(requestDetails.getStatus());
@@ -69,7 +86,9 @@ public class RequestService {
     
     // Delete request
     public void deleteRequest(Integer id) {
+        logger.info("Attempting to delete request with ID: {}", id);
         Request request = getRequestById(id);
         requestRepository.delete(request);
+        logger.info("Successfully deleted request with ID: {}", id);
     }
 }

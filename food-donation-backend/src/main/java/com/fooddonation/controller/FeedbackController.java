@@ -12,7 +12,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/feedback")
-@CrossOrigin(origins = "*")
 public class FeedbackController {
     
     @Autowired
@@ -20,13 +19,9 @@ public class FeedbackController {
     
     // Create new feedback
     @PostMapping
-    public ResponseEntity<?> createFeedback(@RequestBody Feedback feedback) {
-        try {
-            Feedback createdFeedback = feedbackService.createFeedback(feedback);
-            return new ResponseEntity<>(createdFeedback, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Feedback> createFeedback(@RequestBody Feedback feedback) {
+        Feedback createdFeedback = feedbackService.createFeedback(feedback);
+        return new ResponseEntity<>(createdFeedback, HttpStatus.CREATED);
     }
     
     // Get all feedback
@@ -38,13 +33,9 @@ public class FeedbackController {
     
     // Get feedback by ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getFeedbackById(@PathVariable Integer id) {
-        try {
-            Feedback feedback = feedbackService.getFeedbackById(id);
-            return new ResponseEntity<>(feedback, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Feedback> getFeedbackById(@PathVariable Integer id) {
+        Feedback feedback = feedbackService.getFeedbackById(id);
+        return new ResponseEntity<>(feedback, HttpStatus.OK);
     }
     
     // Get feedback by donation ID
@@ -63,23 +54,15 @@ public class FeedbackController {
     
     // Update feedback
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateFeedback(@PathVariable Integer id, @RequestBody Feedback feedback) {
-        try {
-            Feedback updatedFeedback = feedbackService.updateFeedback(id, feedback);
-            return new ResponseEntity<>(updatedFeedback, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Feedback> updateFeedback(@PathVariable Integer id, @RequestBody Feedback feedback) {
+        Feedback updatedFeedback = feedbackService.updateFeedback(id, feedback);
+        return new ResponseEntity<>(updatedFeedback, HttpStatus.OK);
     }
     
     // Delete feedback
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteFeedback(@PathVariable Integer id) {
-        try {
-            feedbackService.deleteFeedback(id);
-            return new ResponseEntity<>(Map.of("message", "Feedback deleted successfully"), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Map<String, String>> deleteFeedback(@PathVariable Integer id) {
+        feedbackService.deleteFeedback(id);
+        return new ResponseEntity<>(Map.of("message", "Feedback deleted successfully"), HttpStatus.OK);
     }
 }

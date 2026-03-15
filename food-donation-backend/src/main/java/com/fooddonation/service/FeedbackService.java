@@ -2,6 +2,10 @@ package com.fooddonation.service;
 
 import com.fooddonation.model.Feedback;
 import com.fooddonation.repository.FeedbackRepository;
+import com.fooddonation.exception.BadRequestException;
+import com.fooddonation.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -9,15 +13,21 @@ import java.util.List;
 @Service
 public class FeedbackService {
     
+    private static final Logger logger = LoggerFactory.getLogger(FeedbackService.class);
+    
     @Autowired
     private FeedbackRepository feedbackRepository;
     
     // Create new feedback
     public Feedback createFeedback(Feedback feedback) {
+        logger.info("Creating feedback from user ID: {} for donation ID: {}", feedback.getUserId(), feedback.getDonationId());
         if (feedback.getRating() < 1 || feedback.getRating() > 5) {
-            throw new RuntimeException("Rating must be between 1 and 5");
+            logger.warn("Invalid rating provided: {}. Must be between 1 and 5", feedback.getRating());
+            throw new BadRequestException("Rating must be between 1 and 5");
         }
-        return feedbackRepository.save(feedback);
+        Feedback savedFeedback = feedbackRepository.save(feedback);
+        logger.info("Successfully created feedback with ID: {}", savedFeedback.getFeedbackId());
+        return savedFeedback;
     }
     
     // Get all feedback
@@ -27,8 +37,12 @@ public class FeedbackService {
     
     // Get feedback by ID
     public Feedback getFeedbackById(Integer id) {
+        logger.debug("Fetching feedback by ID: {}", id);
         return feedbackRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Feedback not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("Feedback not found with id: {}", id);
+                    return new ResourceNotFoundException("Feedback not found with id: " + id);
+                });
     }
     
     // Get feedback by donation ID
@@ -43,15 +57,20 @@ public class FeedbackService {
     
     // Update feedback
     public Feedback updateFeedback(Integer id, Feedback feedbackDetails) {
+        logger.info("Attempting to update feedback details for ID: {}", id);
         Feedback feedback = getFeedbackById(id);
         feedback.setRating(feedbackDetails.getRating());
         feedback.setComment(feedbackDetails.getComment());
-        return feedbackRepository.save(feedback);
+        Feedback updated = feedbackRepository.save(feedback);
+        logger.info("Successfully updated feedback ID: {}", id);
+        return updated;
     }
     
     // Delete feedback
     public void deleteFeedback(Integer id) {
+        logger.info("Attempting to delete feedback with ID: {}", id);
         Feedback feedback = getFeedbackById(id);
         feedbackRepository.delete(feedback);
+        logger.info("Successfully deleted feedback with ID: {}", id);
     }
 }

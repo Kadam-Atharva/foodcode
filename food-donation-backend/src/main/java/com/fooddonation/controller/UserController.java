@@ -12,34 +12,23 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*")
 public class UserController {
     
     @Autowired
     private UserService userService;
     
-    // Register new user
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user) {
-        try {
-            User createdUser = userService.createUser(user);
-            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<User> registerUser(@RequestBody User user) {
+        User createdUser = userService.createUser(user);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
     
-    // Login user
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody Map<String, String> credentials) {
-        try {
-            String email = credentials.get("email");
-            String password = credentials.get("password");
-            User user = userService.loginUser(email, password);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.UNAUTHORIZED);
-        }
+    public ResponseEntity<User> loginUser(@RequestBody Map<String, String> credentials) {
+        String email = credentials.get("email");
+        String password = credentials.get("password");
+        User user = userService.loginUser(email, password);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
     
     // Get all users
@@ -49,36 +38,21 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
     
-    // Get user by ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
-        try {
-            User user = userService.getUserById(id);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<User> getUserById(@PathVariable Integer id) {
+        User user = userService.getUserById(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
     
-    // Update user
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody User user) {
-        try {
-            User updatedUser = userService.updateUser(id, user);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody User user) {
+        User updatedUser = userService.updateUser(id, user);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
     
-    // Delete user
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
-        try {
-            userService.deleteUser(id);
-            return new ResponseEntity<>(Map.of("message", "User deleted successfully"), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Integer id) {
+        userService.deleteUser(id);
+        return new ResponseEntity<>(Map.of("message", "User deleted successfully"), HttpStatus.OK);
     }
 }

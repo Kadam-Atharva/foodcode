@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/donations")
-@CrossOrigin(origins = "*")
 public class FoodDonationController {
     
     @Autowired
@@ -21,13 +20,9 @@ public class FoodDonationController {
     
     // Create new donation
     @PostMapping
-    public ResponseEntity<?> createDonation(@RequestBody FoodDonation donation) {
-        try {
-            FoodDonation createdDonation = foodDonationService.createDonation(donation);
-            return new ResponseEntity<>(createdDonation, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<FoodDonation> createDonation(@RequestBody FoodDonation donation) {
+        FoodDonation createdDonation = foodDonationService.createDonation(donation);
+        return new ResponseEntity<>(createdDonation, HttpStatus.CREATED);
     }
     
     // Get all donations
@@ -39,13 +34,9 @@ public class FoodDonationController {
     
     // Get donation by ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getDonationById(@PathVariable Integer id) {
-        try {
-            FoodDonation donation = foodDonationService.getDonationById(id);
-            return new ResponseEntity<>(donation, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<FoodDonation> getDonationById(@PathVariable Integer id) {
+        FoodDonation donation = foodDonationService.getDonationById(id);
+        return new ResponseEntity<>(donation, HttpStatus.OK);
     }
     
     // Get donations by user ID
@@ -71,35 +62,23 @@ public class FoodDonationController {
     
     // Update donation
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateDonation(@PathVariable Integer id, @RequestBody FoodDonation donation) {
-        try {
-            FoodDonation updatedDonation = foodDonationService.updateDonation(id, donation);
-            return new ResponseEntity<>(updatedDonation, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<FoodDonation> updateDonation(@PathVariable Integer id, @RequestBody FoodDonation donation) {
+        FoodDonation updatedDonation = foodDonationService.updateDonation(id, donation);
+        return new ResponseEntity<>(updatedDonation, HttpStatus.OK);
     }
     
     // Update donation status
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateDonationStatus(@PathVariable Integer id, @RequestBody Map<String, String> statusMap) {
-        try {
-            DonationStatus status = DonationStatus.valueOf(statusMap.get("status"));
-            FoodDonation updatedDonation = foodDonationService.updateDonationStatus(id, status);
-            return new ResponseEntity<>(updatedDonation, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<FoodDonation> updateDonationStatus(@PathVariable Integer id, @RequestBody Map<String, String> statusMap) {
+        DonationStatus status = DonationStatus.valueOf(statusMap.get("status"));
+        FoodDonation updatedDonation = foodDonationService.updateDonationStatus(id, status);
+        return new ResponseEntity<>(updatedDonation, HttpStatus.OK);
     }
     
     // Delete donation
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDonation(@PathVariable Integer id) {
-        try {
-            foodDonationService.deleteDonation(id);
-            return new ResponseEntity<>(Map.of("message", "Donation deleted successfully"), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Map<String, String>> deleteDonation(@PathVariable Integer id) {
+        foodDonationService.deleteDonation(id);
+        return new ResponseEntity<>(Map.of("message", "Donation deleted successfully"), HttpStatus.OK);
     }
 }
