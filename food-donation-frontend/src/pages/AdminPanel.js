@@ -157,28 +157,28 @@ function AdminPanel({ currentUser }) {
                                 <h2>📊 Platform Summary</h2>
                                 <div className="admin-summary-grid">
                                     <div className="summary-item highlight">
-                                        <h4>Success Rate</h4>
-                                        <span>{stats?.successRate.toFixed(2)}%</span>
+                                        <h4>Platform Success</h4>
+                                        <span>{stats?.successRate.toFixed(1)}%</span>
                                     </div>
                                     <div className="summary-item">
-                                        <h4>Approved Requests</h4>
-                                        <span>{stats?.approvedRequests}</span>
+                                        <h4>Fulfillment Rate</h4>
+                                        <span>{stats?.fulfillmentRate.toFixed(1)}%</span>
+                                    </div>
+                                    <div className="summary-item impact-indicator">
+                                        <h4>Estimated Impact</h4>
+                                        <span>{stats?.estimatedImpact} People Helped</span>
                                     </div>
                                     <div className="summary-item">
-                                        <h4>Available Donations</h4>
-                                        <span>{stats?.availableDonations}</span>
+                                        <h4>Active Donors</h4>
+                                        <span>{stats?.activeDonors}</span>
                                     </div>
                                     <div className="summary-item">
-                                        <h4>Completed Donations</h4>
-                                        <span>{stats?.completedDonations}</span>
-                                    </div>
-                                    <div className="summary-item">
-                                        <h4>Platform Users</h4>
-                                        <span>{stats?.totalUsers}</span>
+                                        <h4>Total Donations</h4>
+                                        <span>{stats?.totalDonations}</span>
                                     </div>
                                     <div className="summary-item highlights-secondary">
                                         <h4>Efficiency</h4>
-                                        <span>{(stats?.completedDonations / (stats?.totalDonations || 1) * 100).toFixed(1)}%</span>
+                                        <span>{((stats?.approvedRequests / (stats?.totalRequests || 1)) * 100).toFixed(1)}%</span>
                                     </div>
                                 </div>
                             </div>

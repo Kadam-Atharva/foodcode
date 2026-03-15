@@ -37,13 +37,26 @@ public class AnalyticsService {
                 .filter(r -> r.getStatus() == Request.RequestStatus.approved)
                 .count();
 
+        long activeDonors = foodDonationRepository.findAll().stream()
+                .map(FoodDonation::getUserId)
+                .distinct()
+                .count();
+
         stats.put("totalUsers", totalUsers);
         stats.put("totalDonations", totalDonations);
         stats.put("totalRequests", totalRequests);
         stats.put("availableDonations", availableDonations);
         stats.put("completedDonations", completedDonations);
         stats.put("approvedRequests", approvedRequests);
+        stats.put("activeDonors", activeDonors);
+        
+        // Complex Metrics
         stats.put("successRate", totalDonations > 0 ? (completedDonations * 100.0 / totalDonations) : 0);
+        stats.put("fulfillmentRate", totalRequests > 0 ? (approvedRequests * 100.0 / totalRequests) : 0);
+        
+        // Estimated Impact (Meals shared estimation)
+        // Assuming each completed donation helps approx 3-5 people
+        stats.put("estimatedImpact", completedDonations * 4);
 
         return stats;
     }
