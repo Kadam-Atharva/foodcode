@@ -121,22 +121,30 @@ function Dashboard({ currentUser }) {
             </div>
 
             <div className="dashboard-stats">
-                <div className="stat-card">
-                    <h3>{myDonations.length}</h3>
-                    <p>My Donations</p>
-                </div>
-                <div className="stat-card">
-                    <h3>{myRequests.length}</h3>
-                    <p>My Requests</p>
-                </div>
-                <div className="stat-card">
-                    <h3>{myDonations.filter(d => d.status === 'completed').length}</h3>
-                    <p>Completed</p>
-                </div>
-                <div className="stat-card">
-                    <h3>{myDonations.filter(d => d.status === 'claimed').length}</h3>
-                    <p>Claimed</p>
-                </div>
+                {(currentUser.userType === 'donor' || currentUser.userType === 'admin') && (
+                    <div className="stat-card">
+                        <h3>{myDonations.length}</h3>
+                        <p>My Donations</p>
+                    </div>
+                )}
+                {(currentUser.userType === 'receiver' || currentUser.userType === 'admin') && (
+                    <div className="stat-card">
+                        <h3>{myRequests.length}</h3>
+                        <p>My Requests</p>
+                    </div>
+                )}
+                {(currentUser.userType === 'donor' || currentUser.userType === 'admin') && (
+                    <div className="stat-card">
+                        <h3>{myDonations.filter(d => d.status === 'completed').length}</h3>
+                        <p>Completed</p>
+                    </div>
+                )}
+                {(currentUser.userType === 'donor' || currentUser.userType === 'admin') && (
+                    <div className="stat-card">
+                        <h3>{myDonations.filter(d => d.status === 'claimed').length}</h3>
+                        <p>Claimed</p>
+                    </div>
+                )}
             </div>
 
             {currentUser.userType === 'admin' && (
