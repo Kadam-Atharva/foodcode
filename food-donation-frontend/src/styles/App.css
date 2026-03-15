@@ -1881,22 +1881,26 @@ body {
    ======================================== */
 .donation-image {
   width: 100%;
-  height: 280px; /* Fixed height is more reliable than aspect-ratio in flex layouts */
+  height: 380px; 
+  min-height: 380px; /* Force the height to prevent collapsing */
   margin-bottom: 1.5rem;
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border-color);
-  background: #f8f9fa;
+  background: #ffffff; /* White background for clean look */
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  padding: 10px; /* Padding ensures the image doesn't touch the edges */
 }
 
 .donation-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Back to cover but with a solid height */
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain; /* Shows the FULL image without cropping */
   transition: var(--transition);
   display: block;
 }

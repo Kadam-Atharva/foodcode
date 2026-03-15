@@ -14,6 +14,7 @@ function Dashboard({ currentUser }) {
     const [showFeedbackForm, setShowFeedbackForm] = useState(null);
     const [showFeedbackDisplay, setShowFeedbackDisplay] = useState(null);
     const [editingDonation, setEditingDonation] = useState(null);
+    const [userMap, setUserMap] = useState({});
 
     useEffect(() => {
         if (currentUser) {
@@ -41,6 +42,14 @@ function Dashboard({ currentUser }) {
             // Fetch user's requests (if receiver)
             const myRequestsResponse = await requestAPI.getRequestsByReceiverId(currentUser.userId);
             setMyRequests(myRequestsResponse.data);
+
+            // Fetch all users to map IDs to names
+            const usersResponse = await userAPI.getAllUsers();
+            const map = {};
+            usersResponse.data.forEach(user => {
+                map[user.userId] = user;
+            });
+            setUserMap(map);
         } catch (err) {
             console.error('Failed to load dashboard data:', err);
         } finally {
@@ -233,9 +242,14 @@ function Dashboard({ currentUser }) {
                                                         <div key={request.requestId} className="request-item">
                                                             <p>
                                                                 <strong>Request #{request.requestId}</strong> |
-                                                                <strong> Receiver ID:</strong> {request.receiverId} |
+                                                                <strong> Receiver:</strong> {userMap[request.receiverId]?.name || `User #${request.receiverId}`} |
                                                                 <strong> Status:</strong> {getStatusBadge(request.status)}
                                                             </p>
+                                                            {request.status === 'approved' && (
+                                                                <p className="contact-info-text">
+                                                                    📞 <strong>Contact:</strong> {userMap[request.receiverId]?.phoneNumber}
+                                                                </p>
+                                                            )}
                                                             {request.pickupTime && (
                                                                 <p><strong>Pickup Time:</strong> {new Date(request.pickupTime).toLocaleString('en-IN')}</p>
                                                             )}
@@ -328,6 +342,58 @@ function Dashboard({ currentUser }) {
                                     ))}
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {activeTab === 'donations' && currentUser.userType !== 'receiver' && (
+                        <div className="history-section mt-4">
+                            <h2>🤝 Recipient History</h2>
+                            <div className="admin-table-wrapper">
+                                <table className="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Food Item</th>
+                                            <th>Recipient Name</th>
+                                            <th>Contact</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {myDonations.flatMap(d => 
+                                            (donationsWithRequests[d.donationId] || [])
+                                            .filter(r => r.status === 'approved' || r.status === 'completed')
+                                            .map(r => (
+                                                <tr key={r.requestId}>
+                                                    <td><strong>{d.foodType}</strong></td>
+                                                    <td>{userMap[r.receiverId]?.name || `User #${r.receiverId}`}</td>
+                                                    <td>{userMap[r.receiverId]?.phoneNumber || 'N/A'}</td>
+                                                    <td>{new Date(r.requestDate).toLocaleDateString()}</td>
+                                                    <td><span className={`status-badge ${r.status}`}>{r.status}</span></td>
+                                                </tr>
+                                            ))
+                                        ).length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5" className="text-center">No recipient history found yet.</td>
+                                            </tr>
+                                        ) : (
+                                            myDonations.flatMap(d => 
+                                                (donationsWithRequests[d.donationId] || [])
+                                                .filter(r => r.status === 'approved' || r.status === 'completed')
+                                                .map(r => (
+                                                    <tr key={r.requestId}>
+                                                        <td><strong>{d.foodType}</strong></td>
+                                                        <td>{userMap[r.receiverId]?.name || `User #${r.receiverId}`}</td>
+                                                        <td>{userMap[r.receiverId]?.phoneNumber || 'N/A'}</td>
+                                                        <td>{new Date(r.requestDate).toLocaleDateString()}</td>
+                                                        <td><span className={`status-badge ${r.status}`}>{r.status}</span></td>
+                                                    </tr>
+                                                ))
+                                            )
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     )}
                 </div>
