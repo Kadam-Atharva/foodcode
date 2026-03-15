@@ -96,22 +96,40 @@ function DonatePage({ currentUser }) {
                     const userPos = [latitude, longitude];
                     map.setView(userPos, 15);
                     marker.setLatLng(userPos);
-                    updateCoords(latitude, longitude);
+                    reverseGeocode(latitude, longitude);
                 });
             }
 
             marker.on('dragend', () => {
                 const pos = marker.getLatLng();
-                updateCoords(pos.lat, pos.lng);
+                reverseGeocode(pos.lat, pos.lng);
             });
 
             map.on('click', (e) => {
                 const pos = e.latlng;
                 marker.setLatLng(pos);
-                updateCoords(pos.lat, pos.lng);
+                reverseGeocode(pos.lat, pos.lng);
             });
         }
     }, []);
+
+    const reverseGeocode = async (lat, lng) => {
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+            const data = await res.json();
+            if (data.display_name) {
+                setFormData(prev => ({
+                    ...prev,
+                    pickupAddress: data.display_name,
+                    latitude: lat,
+                    longitude: lng
+                }));
+            }
+        } catch (err) {
+            console.error("Geocoding error:", err);
+            updateCoords(lat, lng);
+        }
+    };
 
     const updateCoords = (lat, lng) => {
         setFormData(prev => ({
