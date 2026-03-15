@@ -31,8 +31,12 @@ public class UserService {
         User savedUser = userRepository.save(user);
         logger.info("Successfully created user with ID: {}", savedUser.getUserId());
         
-        // Send welcome email
-        emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getName());
+        // Send welcome email (wrapped in try-catch for safety)
+        try {
+            emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getName());
+        } catch (Exception e) {
+            logger.error("Could not trigger welcome email for user {}: {}", savedUser.getEmail(), e.getMessage());
+        }
         
         return savedUser;
     }

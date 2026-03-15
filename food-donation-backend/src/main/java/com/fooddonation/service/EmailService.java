@@ -22,6 +22,10 @@ public class EmailService {
 
     @Async
     public void sendSimpleEmail(String to, String subject, String body) {
+        if (fromEmail == null || fromEmail.equals("your-email@gmail.com")) {
+            logger.warn("Email not sent to {}: SMTP credentials not configured in application.properties", to);
+            return;
+        }
         try {
             logger.info("Attempting to send email to: {} with subject: {}", to, subject);
             
@@ -35,8 +39,6 @@ public class EmailService {
             logger.info("Email sent successfully to: {}", to);
         } catch (Exception e) {
             logger.error("Failed to send email to: {}. Error: {}", to, e.getMessage());
-            // We don't throw here to avoid breaking the main transaction, 
-            // especially since it's an @Async call.
         }
     }
 
