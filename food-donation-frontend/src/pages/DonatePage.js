@@ -73,49 +73,42 @@ function DonatePage({ currentUser }) {
     };
 
     useEffect(() => {
-        if (window.google && mapRef.current) {
-            // Default center (Mumbai if no location)
-            const defaultPos = { lat: 19.0760, lng: 72.8777 };
+        if (window.L && mapRef.current && !mapInstanceRef.current) {
+            // Default center (Mumbai)
+            const defaultPos = [19.0760, 72.8777];
             
-            const map = new window.google.maps.Map(mapRef.current, {
-                center: defaultPos,
-                zoom: 12,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false
-            });
+            const map = window.L.map(mapRef.current).setView(defaultPos, 13);
             mapInstanceRef.current = map;
 
-            const marker = new window.google.maps.Marker({
-                position: defaultPos,
-                map: map,
-                draggable: true,
-                title: "Drag to set pickup location"
-            });
+            window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            const marker = window.L.marker(defaultPos, {
+                draggable: true
+            }).addTo(map);
             markerRef.current = marker;
 
             // Try to get user's current location
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
-                    const userPos = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-                    map.setCenter(userPos);
-                    marker.setPosition(userPos);
-                    updateCoords(userPos.lat, userPos.lng);
+                    const { latitude, longitude } = position.coords;
+                    const userPos = [latitude, longitude];
+                    map.setView(userPos, 15);
+                    marker.setLatLng(userPos);
+                    updateCoords(latitude, longitude);
                 });
             }
 
-            marker.addListener('dragend', () => {
-                const pos = marker.getPosition();
-                updateCoords(pos.lat(), pos.lng());
+            marker.on('dragend', () => {
+                const pos = marker.getLatLng();
+                updateCoords(pos.lat, pos.lng);
             });
 
-            map.addListener('click', (e) => {
-                const pos = e.latLng;
-                marker.setPosition(pos);
-                updateCoords(pos.lat(), pos.lng());
+            map.on('click', (e) => {
+                const pos = e.latlng;
+                marker.setLatLng(pos);
+                updateCoords(pos.lat, pos.lng);
             });
         }
     }, []);

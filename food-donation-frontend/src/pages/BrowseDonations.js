@@ -75,70 +75,65 @@ function BrowseDonations({ currentUser }) {
     };
 
     useEffect(() => {
-        if (viewMode === 'map' && window.google && browseMapRef.current) {
-            // Default center
-            const mumbai = { lat: 19.0760, lng: 72.8777 };
+        if (viewMode === 'map' && window.L && browseMapRef.current) {
+            // Default center (Mumbai)
+            const mumbai = [19.0760, 72.8777];
             
-            const map = new window.google.maps.Map(browseMapRef.current, {
-                center: mumbai,
-                zoom: 11,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false
-            });
+            if (mapInstanceRef.current) {
+                mapInstanceRef.current.remove();
+            }
+
+            const map = window.L.map(browseMapRef.current).setView(mumbai, 11);
             mapInstanceRef.current = map;
 
+            window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
             // Clear old markers
-            markersRef.current.forEach(m => m.setMap(null));
+            markersRef.current.forEach(m => m.remove());
             markersRef.current = [];
 
             // Add markers
-            const bounds = new window.google.maps.LatLngBounds();
+            const markerGroup = window.L.featureGroup();
             let hasPoints = false;
 
             filteredDonations.forEach(donation => {
                 if (donation.latitude && donation.longitude) {
                     hasPoints = true;
-                    const pos = { lat: donation.latitude, lng: donation.longitude };
+                    const pos = [donation.latitude, donation.longitude];
                     
-                    const marker = new window.google.maps.Marker({
-                        position: pos,
-                        map: map,
-                        title: donation.foodType,
-                        animation: window.google.maps.Animation.DROP
-                    });
+                    const marker = window.L.marker(pos).addTo(map);
+                    
+                    const popupContent = document.createElement('div');
+                    popupContent.innerHTML = `
+                        <div style="color: #333; padding: 5px; font-family: Inter, sans-serif;">
+                            <h4 style="margin: 0 0 5px 0;">${donation.foodType}</h4>
+                            <p style="margin: 0 0 5px 0;"><b>Qty:</b> ${donation.quantity}</p>
+                            <p style="margin: 0 0 10px 0;">${donation.pickupAddress}</p>
+                            <button id="req-btn-${donation.donationId}" style="background: #ff6b35; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 600;">
+                                Request Now
+                            </button>
+                        </div>
+                    `;
 
-                    const infoWindow = new window.google.maps.InfoWindow({
-                        content: `
-                            <div style="color: #333; padding: 5px;">
-                                <h4 style="margin: 0 0 5px 0;">${donation.foodType}</h4>
-                                <p style="margin: 0 0 5px 0;"><b>Qty:</b> ${donation.quantity}</p>
-                                <p style="margin: 0 0 10px 0;">${donation.pickupAddress}</p>
-                                <button onclick="window.requestFromMap(${donation.donationId})" style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
-                                    Request Now
-                                </button>
-                            </div>
-                        `
-                    });
-
-                    marker.addListener('click', () => {
-                        infoWindow.open(map, marker);
+                    marker.bindPopup(popupContent);
+                    
+                    marker.on('popupopen', () => {
+                        const btn = document.getElementById(`req-btn-${donation.donationId}`);
+                        if (btn) {
+                            btn.onclick = () => handleRequestClick(donation);
+                        }
                     });
 
                     markersRef.current.push(marker);
-                    bounds.extend(pos);
+                    markerGroup.addLayer(marker);
                 }
             });
 
             if (hasPoints) {
-                map.fitBounds(bounds);
+                map.fitBounds(markerGroup.getBounds(), { padding: [50, 50] });
             }
-
-            // Expose a global function for InfoWindow button
-            window.requestFromMap = (id) => {
-                const donation = filteredDonations.find(d => d.donationId === id);
-                if (donation) handleRequestClick(donation);
-            };
         }
     }, [viewMode, filteredDonations]);
 
