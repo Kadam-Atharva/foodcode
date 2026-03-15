@@ -30,6 +30,11 @@ function DonationCard({ donation, onRequestClick, currentUser, showActions = tru
             </div>
 
             <div className="card-body">
+                {donation.imageUrl && (
+                    <div className="donation-image">
+                        <img src={donation.imageUrl} alt={donation.foodType} />
+                    </div>
+                )}
                 <p className="card-info">
                     <strong>📦 Quantity:</strong> {donation.quantity}
                 </p>

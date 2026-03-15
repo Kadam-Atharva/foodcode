@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { donationAPI } from '../services/api';
+import { donationAPI, fileAPI } from '../services/api';
 
 function DonatePage({ currentUser }) {
     const navigate = useNavigate();
@@ -14,6 +14,7 @@ function DonatePage({ currentUser }) {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const [imageFile, setImageFile] = useState(null);
 
     const handleChange = (e) => {
         setFormData({
@@ -29,8 +30,15 @@ function DonatePage({ currentUser }) {
         setLoading(true);
 
         try {
+            let imageUrl = null;
+            if (imageFile) {
+                const uploadRes = await fileAPI.uploadImage(imageFile);
+                imageUrl = uploadRes.data.imageUrl;
+            }
+
             const donationData = {
                 ...formData,
+                imageUrl: imageUrl,
                 userId: currentUser.userId
             };
 
@@ -98,6 +106,17 @@ function DonatePage({ currentUser }) {
                                 value={formData.foodType}
                                 onChange={handleChange}
                                 required
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="imageFile">Food Image (Optional)</label>
+                            <input
+                                type="file"
+                                id="imageFile"
+                                name="imageFile"
+                                accept="image/*"
+                                onChange={(e) => setImageFile(e.target.files[0])}
                             />
                         </div>
 

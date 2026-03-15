@@ -67,6 +67,9 @@ public class FoodDonationService {
         donation.setPickupAddress(donationDetails.getPickupAddress());
         donation.setDescription(donationDetails.getDescription());
         donation.setStatus(donationDetails.getStatus());
+        if (donationDetails.getImageUrl() != null) {
+            donation.setImageUrl(donationDetails.getImageUrl());
+        }
         FoodDonation updated = foodDonationRepository.save(donation);
         logger.info("Successfully updated donation details for ID: {}", id);
         return updated;

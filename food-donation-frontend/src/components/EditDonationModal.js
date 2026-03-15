@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { donationAPI } from '../services/api';
+import { donationAPI, fileAPI } from '../services/api';
 
 function EditDonationModal({ donation, onDonationUpdated, onClose }) {
     const [formData, setFormData] = useState({
@@ -12,6 +12,7 @@ function EditDonationModal({ donation, onDonationUpdated, onClose }) {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [imageFile, setImageFile] = useState(null);
 
     const handleChange = (e) => {
         setFormData({
@@ -26,8 +27,15 @@ function EditDonationModal({ donation, onDonationUpdated, onClose }) {
         setLoading(true);
 
         try {
+            let imageUrl = donation.imageUrl;
+            if (imageFile) {
+                const uploadRes = await fileAPI.uploadImage(imageFile);
+                imageUrl = uploadRes.data.imageUrl;
+            }
+
             const updateData = {
                 ...formData,
+                imageUrl: imageUrl,
                 userId: donation.userId
             };
             await donationAPI.updateDonation(donation.donationId, updateData);
@@ -61,6 +69,20 @@ function EditDonationModal({ donation, onDonationUpdated, onClose }) {
                             onChange={handleChange}
                             required
                         />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="edit-imageFile">Update Food Image (Optional)</label>
+                        <input
+                            type="file"
+                            id="edit-imageFile"
+                            name="imageFile"
+                            accept="image/*"
+                            onChange={(e) => setImageFile(e.target.files[0])}
+                        />
+                        {donation.imageUrl && !imageFile && (
+                            <p className="small-text">Current image stored. Upload new to replace.</p>
+                        )}
                     </div>
 
                     <div className="form-group">

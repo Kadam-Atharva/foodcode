@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { userAPI, donationAPI, requestAPI, feedbackAPI } from '../services/api';
+import { userAPI, donationAPI, requestAPI, feedbackAPI, analyticsAPI } from '../services/api';
 
 function AdminPanel({ currentUser }) {
     const [activeTab, setActiveTab] = useState('overview');
@@ -7,6 +7,7 @@ function AdminPanel({ currentUser }) {
     const [donations, setDonations] = useState([]);
     const [requests, setRequests] = useState([]);
     const [feedbacks, setFeedbacks] = useState([]);
+    const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -16,16 +17,18 @@ function AdminPanel({ currentUser }) {
     const fetchAllData = async () => {
         try {
             setLoading(true);
-            const [usersRes, donationsRes, requestsRes, feedbacksRes] = await Promise.all([
+            const [usersRes, donationsRes, requestsRes, feedbacksRes, statsRes] = await Promise.all([
                 userAPI.getAllUsers(),
                 donationAPI.getAllDonations(),
                 requestAPI.getAllRequests(),
-                feedbackAPI.getAllFeedback()
+                feedbackAPI.getAllFeedback(),
+                analyticsAPI.getStats()
             ]);
             setUsers(usersRes.data);
             setDonations(donationsRes.data);
             setRequests(requestsRes.data);
             setFeedbacks(feedbacksRes.data);
+            setStats(statsRes.data);
         } catch (err) {
             console.error('Failed to fetch admin data:', err);
         } finally {
@@ -121,6 +124,13 @@ function AdminPanel({ currentUser }) {
                     <h3>{feedbacks.length}</h3>
                     <p>Total Feedbacks</p>
                 </div>
+                {stats && (
+                    <div className="admin-stat-card impact-card">
+                        <div className="admin-stat-icon">📈</div>
+                        <h3>{stats.successRate.toFixed(1)}%</h3>
+                        <p>Platform Success Rate</p>
+                    </div>
+                )}
             </div>
 
             {/* Tab Navigation */}
@@ -146,38 +156,29 @@ function AdminPanel({ currentUser }) {
                             <div className="admin-section">
                                 <h2>📊 Platform Summary</h2>
                                 <div className="admin-summary-grid">
-                                    <div className="summary-item">
-                                        <h4>Donors</h4>
-                                        <span>{users.filter(u => u.userType === 'donor').length}</span>
+                                    <div className="summary-item highlight">
+                                        <h4>Success Rate</h4>
+                                        <span>{stats?.successRate.toFixed(2)}%</span>
                                     </div>
                                     <div className="summary-item">
-                                        <h4>Receivers</h4>
-                                        <span>{users.filter(u => u.userType === 'receiver').length}</span>
+                                        <h4>Approved Requests</h4>
+                                        <span>{stats?.approvedRequests}</span>
                                     </div>
                                     <div className="summary-item">
                                         <h4>Available Donations</h4>
-                                        <span>{donations.filter(d => d.status === 'available').length}</span>
-                                    </div>
-                                    <div className="summary-item">
-                                        <h4>Claimed Donations</h4>
-                                        <span>{donations.filter(d => d.status === 'claimed').length}</span>
+                                        <span>{stats?.availableDonations}</span>
                                     </div>
                                     <div className="summary-item">
                                         <h4>Completed Donations</h4>
-                                        <span>{donations.filter(d => d.status === 'completed').length}</span>
+                                        <span>{stats?.completedDonations}</span>
                                     </div>
                                     <div className="summary-item">
-                                        <h4>Pending Requests</h4>
-                                        <span>{requests.filter(r => r.status === 'pending').length}</span>
+                                        <h4>Platform Users</h4>
+                                        <span>{stats?.totalUsers}</span>
                                     </div>
-                                    <div className="summary-item">
-                                        <h4>Avg. Rating</h4>
-                                        <span>
-                                            {feedbacks.length > 0
-                                                ? (feedbacks.reduce((s, f) => s + f.rating, 0) / feedbacks.length).toFixed(1)
-                                                : 'N/A'
-                                            } ⭐
-                                        </span>
+                                    <div className="summary-item highlights-secondary">
+                                        <h4>Efficiency</h4>
+                                        <span>{(stats?.completedDonations / (stats?.totalDonations || 1) * 100).toFixed(1)}%</span>
                                     </div>
                                 </div>
                             </div>

@@ -18,6 +18,9 @@ public class UserService {
     
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
     
     public User createUser(User user) {
         logger.info("Attempting to create a new user with email: {}", user.getEmail());
@@ -27,6 +30,10 @@ public class UserService {
         }
         User savedUser = userRepository.save(user);
         logger.info("Successfully created user with ID: {}", savedUser.getUserId());
+        
+        // Send welcome email
+        emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getName());
+        
         return savedUser;
     }
     

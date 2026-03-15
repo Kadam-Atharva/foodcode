@@ -20,6 +20,12 @@ public class RequestService {
     
     @Autowired
     private FoodDonationService foodDonationService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
     
     // Create new request
     public Request createRequest(Request request) {
@@ -72,6 +78,16 @@ public class RequestService {
         
         Request updated = requestRepository.save(request);
         logger.info("Successfully updated status for request ID: {}", id);
+
+        // Send status update email to receiver
+        try {
+            com.fooddonation.model.User receiver = userService.getUserById(updated.getReceiverId());
+            com.fooddonation.model.FoodDonation donation = foodDonationService.getDonationById(updated.getDonationId());
+            emailService.sendRequestUpdateEmail(receiver.getEmail(), donation.getFoodType(), status.name());
+        } catch (Exception e) {
+            logger.error("Failed to trigger status update email: {}", e.getMessage());
+        }
+
         return updated;
     }
     

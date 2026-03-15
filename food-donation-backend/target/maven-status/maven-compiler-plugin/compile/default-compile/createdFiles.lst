@@ -2,6 +2,7 @@ com\fooddonation\model\User$UserType.class
 com\fooddonation\repository\FeedbackRepository.class
 com\fooddonation\controller\FoodDonationController.class
 com\fooddonation\FoodDonationApplication.class
+com\fooddonation\controller\AnalyticsController.class
 com\fooddonation\controller\UserController.class
 com\fooddonation\model\FoodDonation$DonationStatus.class
 com\fooddonation\exception\GlobalExceptionHandler.class
@@ -9,6 +10,7 @@ com\fooddonation\exception\ResourceNotFoundException.class
 com\fooddonation\service\RequestService.class
 com\fooddonation\controller\RequestController.class
 com\fooddonation\model\Request.class
+com\fooddonation\service\AnalyticsService.class
 com\fooddonation\service\FoodDonationService.class
 com\fooddonation\config\CorsConfig.class
 com\fooddonation\model\Feedback.class
@@ -18,7 +20,10 @@ com\fooddonation\exception\BadRequestException.class
 com\fooddonation\repository\RequestRepository.class
 com\fooddonation\model\FoodDonation.class
 com\fooddonation\service\UserService.class
+com\fooddonation\service\EmailService.class
 com\fooddonation\model\User.class
+com\fooddonation\config\WebConfig.class
 com\fooddonation\repository\UserRepository.class
 com\fooddonation\model\Request$RequestStatus.class
+com\fooddonation\controller\UploadController.class
 com\fooddonation\service\FeedbackService.class
