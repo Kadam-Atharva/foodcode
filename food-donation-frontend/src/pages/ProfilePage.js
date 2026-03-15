@@ -27,10 +27,17 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
 
     const fetchUserStats = async () => {
         try {
+            // Determine which feedback to fetch based on user role
+            // Donors see feedback RECEIVED on their items
+            // Receivers see feedback GIVEN by them
+            const feedbackCall = currentUser.userType === 'donor' 
+                ? feedbackAPI.getFeedbackByDonorId(currentUser.userId)
+                : feedbackAPI.getFeedbackByUserId(currentUser.userId);
+
             const [donationsRes, requestsRes, feedbackRes] = await Promise.all([
                 donationAPI.getDonationsByUserId(currentUser.userId),
                 requestAPI.getRequestsByReceiverId(currentUser.userId),
-                feedbackAPI.getFeedbackByUserId(currentUser.userId)
+                feedbackCall
             ]);
             setStats({
                 totalDonations: donationsRes.data.length,

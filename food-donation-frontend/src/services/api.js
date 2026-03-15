@@ -52,6 +52,7 @@ export const feedbackAPI = {
     getFeedbackById: (id) => api.get(`/feedback/${id}`),
     getFeedbackByDonationId: (donationId) => api.get(`/feedback/donation/${donationId}`),
     getFeedbackByUserId: (userId) => api.get(`/feedback/user/${userId}`),
+    getFeedbackByDonorId: (donorId) => api.get(`/feedback/donor/${donorId}`),
     updateFeedback: (id, feedbackData) => api.put(`/feedback/${id}`, feedbackData),
     deleteFeedback: (id) => api.delete(`/feedback/${id}`)
 };

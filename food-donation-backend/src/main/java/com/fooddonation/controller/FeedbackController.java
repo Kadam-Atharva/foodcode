@@ -45,10 +45,17 @@ public class FeedbackController {
         return new ResponseEntity<>(feedbackList, HttpStatus.OK);
     }
     
-    // Get feedback by user ID
+    // Get feedback by user ID (feedback WRITTEN by user)
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Feedback>> getFeedbackByUserId(@PathVariable Integer userId) {
         List<Feedback> feedbackList = feedbackService.getFeedbackByUserId(userId);
+        return new ResponseEntity<>(feedbackList, HttpStatus.OK);
+    }
+
+    // Get feedback for a specific donor (feedback RECEIVED by donor on their items)
+    @GetMapping("/donor/{donorId}")
+    public ResponseEntity<List<Feedback>> getFeedbackByDonorId(@PathVariable Integer donorId) {
+        List<Feedback> feedbackList = feedbackService.getFeedbackByDonorId(donorId);
         return new ResponseEntity<>(feedbackList, HttpStatus.OK);
     }
     

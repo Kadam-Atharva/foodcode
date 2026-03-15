@@ -50,9 +50,14 @@ public class FeedbackService {
         return feedbackRepository.findByDonationIdOrderByFeedbackDateDesc(donationId);
     }
     
-    // Get feedback by user ID
+    // Get feedback by user ID (feedback WRITTEN by user)
     public List<Feedback> getFeedbackByUserId(Integer userId) {
         return feedbackRepository.findByUserId(userId);
+    }
+
+    // Get feedback for a specific donor (feedback RECEIVED by donor on their items)
+    public List<Feedback> getFeedbackByDonorId(Integer donorId) {
+        return feedbackRepository.findByDonorId(donorId);
     }
     
     // Update feedback
