@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+food-donation-frontend/dist/
+food-donation-frontend/build/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Maven target
+food-donation-backend/target/
+
+# Logs
+*.log

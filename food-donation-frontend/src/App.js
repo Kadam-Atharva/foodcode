@@ -6,6 +6,8 @@ import Home from './pages/Home';
 import DonatePage from './pages/DonatePage';
 import BrowseDonations from './pages/BrowseDonations';
 import Dashboard from './pages/Dashboard';
+import ProfilePage from './pages/ProfilePage';
+import AdminPanel from './pages/AdminPanel';
 
 function App() {
     const [currentUser, setCurrentUser] = useState(null);
@@ -43,6 +45,14 @@ function App() {
                         <Route
                             path="/dashboard"
                             element={currentUser ? <Dashboard currentUser={currentUser} /> : <Navigate to="/" />}
+                        />
+                        <Route
+                            path="/profile"
+                            element={currentUser ? <ProfilePage currentUser={currentUser} onLogin={handleLogin} onLogout={handleLogout} /> : <Navigate to="/" />}
+                        />
+                        <Route
+                            path="/admin"
+                            element={currentUser ? <AdminPanel currentUser={currentUser} /> : <Navigate to="/" />}
                         />
                     </Routes>
                 </main>

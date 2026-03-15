@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { donationAPI, requestAPI } from '../services/api';
 import DonationCard from '../components/DonationCard';
+import FeedbackForm from '../components/FeedbackForm';
+import FeedbackDisplay from '../components/FeedbackDisplay';
+import EditDonationModal from '../components/EditDonationModal';
 
 function Dashboard({ currentUser }) {
     const [myDonations, setMyDonations] = useState([]);
@@ -8,6 +11,9 @@ function Dashboard({ currentUser }) {
     const [donationsWithRequests, setDonationsWithRequests] = useState({});
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('donations');
+    const [showFeedbackForm, setShowFeedbackForm] = useState(null);
+    const [showFeedbackDisplay, setShowFeedbackDisplay] = useState(null);
+    const [editingDonation, setEditingDonation] = useState(null);
 
     useEffect(() => {
         fetchDashboardData();
@@ -71,6 +77,30 @@ function Dashboard({ currentUser }) {
         }
     };
 
+    const handleMarkCompleted = async (donationId) => {
+        if (window.confirm('Mark this donation as completed? This means the food has been picked up.')) {
+            try {
+                await donationAPI.updateDonationStatus(donationId, 'completed');
+                alert('✅ Donation marked as completed!');
+                fetchDashboardData();
+            } catch (err) {
+                alert('Failed to update status. Please try again.');
+            }
+        }
+    };
+
+    const handleDeleteRequest = async (requestId) => {
+        if (window.confirm('Are you sure you want to cancel/delete this request?')) {
+            try {
+                await requestAPI.deleteRequest(requestId);
+                alert('✅ Request deleted successfully!');
+                fetchDashboardData();
+            } catch (err) {
+                alert('Failed to delete request. Please try again.');
+            }
+        }
+    };
+
     const getStatusBadge = (status) => {
         const badges = {
             pending: '⏳ Pending',
@@ -100,6 +130,10 @@ function Dashboard({ currentUser }) {
                     <h3>{myDonations.filter(d => d.status === 'completed').length}</h3>
                     <p>Completed</p>
                 </div>
+                <div className="stat-card">
+                    <h3>{myDonations.filter(d => d.status === 'claimed').length}</h3>
+                    <p>Claimed</p>
+                </div>
             </div>
 
             <div className="dashboard-tabs">
@@ -107,13 +141,13 @@ function Dashboard({ currentUser }) {
                     className={activeTab === 'donations' ? 'tab active' : 'tab'}
                     onClick={() => setActiveTab('donations')}
                 >
-                    My Donations
+                    🍽️ My Donations
                 </button>
                 <button
                     className={activeTab === 'requests' ? 'tab active' : 'tab'}
                     onClick={() => setActiveTab('requests')}
                 >
-                    My Requests
+                    📋 My Requests
                 </button>
             </div>
 
@@ -135,15 +169,63 @@ function Dashboard({ currentUser }) {
                                                 showActions={false}
                                             />
 
+                                            {/* Donation Action Buttons */}
+                                            <div className="donation-management-actions">
+                                                {donation.status === 'available' && (
+                                                    <button
+                                                        onClick={() => setEditingDonation(donation)}
+                                                        className="btn btn-primary btn-small"
+                                                    >
+                                                        ✏️ Edit
+                                                    </button>
+                                                )}
+
+                                                {donation.status === 'claimed' && (
+                                                    <button
+                                                        onClick={() => handleMarkCompleted(donation.donationId)}
+                                                        className="btn btn-success btn-small"
+                                                    >
+                                                        ✔️ Mark Completed
+                                                    </button>
+                                                )}
+
+                                                <button
+                                                    onClick={() => setShowFeedbackDisplay(
+                                                        showFeedbackDisplay === donation.donationId ? null : donation.donationId
+                                                    )}
+                                                    className="btn btn-outline btn-small"
+                                                >
+                                                    ⭐ View Feedback
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleDeleteDonation(donation.donationId)}
+                                                    className="btn btn-danger btn-small"
+                                                >
+                                                    🗑️ Delete
+                                                </button>
+                                            </div>
+
+                                            {/* Feedback Display Section */}
+                                            {showFeedbackDisplay === donation.donationId && (
+                                                <div className="feedback-section">
+                                                    <FeedbackDisplay donationId={donation.donationId} />
+                                                </div>
+                                            )}
+
                                             {donationsWithRequests[donation.donationId]?.length > 0 && (
                                                 <div className="requests-for-donation">
-                                                    <h4>Requests for this donation:</h4>
+                                                    <h4>📋 Requests for this donation:</h4>
                                                     {donationsWithRequests[donation.donationId].map((request) => (
                                                         <div key={request.requestId} className="request-item">
                                                             <p>
-                                                                <strong>Request ID:</strong> {request.requestId} |
+                                                                <strong>Request #{request.requestId}</strong> |
+                                                                <strong> Receiver ID:</strong> {request.receiverId} |
                                                                 <strong> Status:</strong> {getStatusBadge(request.status)}
                                                             </p>
+                                                            {request.pickupTime && (
+                                                                <p><strong>Pickup Time:</strong> {new Date(request.pickupTime).toLocaleString('en-IN')}</p>
+                                                            )}
                                                             {request.status === 'pending' && (
                                                                 <div className="request-actions">
                                                                     <button
@@ -164,13 +246,6 @@ function Dashboard({ currentUser }) {
                                                     ))}
                                                 </div>
                                             )}
-
-                                            <button
-                                                onClick={() => handleDeleteDonation(donation.donationId)}
-                                                className="btn btn-danger btn-small"
-                                            >
-                                                🗑️ Delete Donation
-                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -187,10 +262,55 @@ function Dashboard({ currentUser }) {
                                 <div className="requests-list">
                                     {myRequests.map((request) => (
                                         <div key={request.requestId} className="request-card">
-                                            <h3>Request #{request.requestId}</h3>
+                                            <div className="request-card-header">
+                                                <h3>Request #{request.requestId}</h3>
+                                                <span className={`status-badge ${request.status}`}>
+                                                    {getStatusBadge(request.status)}
+                                                </span>
+                                            </div>
                                             <p><strong>Donation ID:</strong> {request.donationId}</p>
-                                            <p><strong>Status:</strong> {getStatusBadge(request.status)}</p>
                                             <p><strong>Requested on:</strong> {new Date(request.requestDate).toLocaleString('en-IN')}</p>
+                                            {request.pickupTime && (
+                                                <p><strong>Pickup Time:</strong> {new Date(request.pickupTime).toLocaleString('en-IN')}</p>
+                                            )}
+
+                                            <div className="request-card-actions">
+                                                {/* Leave Feedback button — only for approved requests */}
+                                                {request.status === 'approved' && (
+                                                    <button
+                                                        onClick={() => setShowFeedbackForm(request.donationId)}
+                                                        className="btn btn-primary btn-small"
+                                                    >
+                                                        ⭐ Leave Feedback
+                                                    </button>
+                                                )}
+
+                                                {/* View Feedback for any donation */}
+                                                <button
+                                                    onClick={() => setShowFeedbackDisplay(
+                                                        showFeedbackDisplay === request.donationId ? null : request.donationId
+                                                    )}
+                                                    className="btn btn-outline btn-small"
+                                                >
+                                                    👀 View Feedback
+                                                </button>
+
+                                                {/* Delete/Cancel Request */}
+                                                {request.status === 'pending' && (
+                                                    <button
+                                                        onClick={() => handleDeleteRequest(request.requestId)}
+                                                        className="btn btn-danger btn-small"
+                                                    >
+                                                        ❌ Cancel Request
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            {showFeedbackDisplay === request.donationId && (
+                                                <div className="feedback-section">
+                                                    <FeedbackDisplay donationId={request.donationId} />
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -198,6 +318,31 @@ function Dashboard({ currentUser }) {
                         </div>
                     )}
                 </div>
+            )}
+
+            {/* Feedback Form Modal */}
+            {showFeedbackForm && (
+                <FeedbackForm
+                    donationId={showFeedbackForm}
+                    userId={currentUser.userId}
+                    onFeedbackSubmitted={() => {
+                        alert('✅ Thank you for your feedback!');
+                        fetchDashboardData();
+                    }}
+                    onClose={() => setShowFeedbackForm(null)}
+                />
+            )}
+
+            {/* Edit Donation Modal */}
+            {editingDonation && (
+                <EditDonationModal
+                    donation={editingDonation}
+                    onDonationUpdated={() => {
+                        alert('✅ Donation updated successfully!');
+                        fetchDashboardData();
+                    }}
+                    onClose={() => setEditingDonation(null)}
+                />
             )}
         </div>
     );

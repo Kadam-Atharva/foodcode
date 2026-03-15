@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 function Navbar({ currentUser, onLogout }) {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
     return (
         <nav className="navbar">
             <div className="nav-container">
@@ -10,21 +12,39 @@ function Navbar({ currentUser, onLogout }) {
                     <span className="logo-text">FoodShare</span>
                 </Link>
 
-                <ul className="nav-menu">
+                <button
+                    className="mobile-menu-toggle"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    aria-label="Toggle menu"
+                >
+                    {mobileMenuOpen ? '✕' : '☰'}
+                </button>
+
+                <ul className={`nav-menu ${mobileMenuOpen ? 'nav-menu-open' : ''}`}>
                     <li className="nav-item">
-                        <Link to="/" className="nav-link">Home</Link>
+                        <Link to="/" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                     </li>
                     <li className="nav-item">
-                        <Link to="/browse" className="nav-link">Browse Donations</Link>
+                        <Link to="/browse" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Browse Donations</Link>
                     </li>
                     {currentUser && (
                         <>
                             <li className="nav-item">
-                                <Link to="/donate" className="nav-link">Donate Food</Link>
+                                <Link to="/donate" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Donate Food</Link>
                             </li>
                             <li className="nav-item">
-                                <Link to="/dashboard" className="nav-link">Dashboard</Link>
+                                <Link to="/dashboard" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
                             </li>
+                            <li className="nav-item">
+                                <Link to="/profile" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
+                            </li>
+                            {currentUser.userType === 'admin' && (
+                                <li className="nav-item">
+                                    <Link to="/admin" className="nav-link nav-link-admin" onClick={() => setMobileMenuOpen(false)}>
+                                        👑 Admin
+                                    </Link>
+                                </li>
+                            )}
                         </>
                     )}
                 </ul>
@@ -32,7 +52,9 @@ function Navbar({ currentUser, onLogout }) {
                 <div className="nav-actions">
                     {currentUser ? (
                         <div className="user-info">
-                            <span className="user-name">👋 {currentUser.name}</span>
+                            <Link to="/profile" className="user-name-link">
+                                <span className="user-name">👋 {currentUser.name}</span>
+                            </Link>
                             <button onClick={onLogout} className="btn btn-outline">Logout</button>
                         </div>
                     ) : (
