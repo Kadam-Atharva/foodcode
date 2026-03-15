@@ -26,6 +26,9 @@ public class RequestService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private NotificationService notificationService;
     
     // Create new request
     public Request createRequest(Request request) {
@@ -33,6 +36,22 @@ public class RequestService {
         request.setStatus(RequestStatus.pending);
         Request savedRequest = requestRepository.save(request);
         logger.info("Successfully created request with ID: {}", savedRequest.getRequestId());
+
+        // Send Real-Time Notification to Donor
+        try {
+            com.fooddonation.model.FoodDonation donation = foodDonationService.getDonationById(savedRequest.getDonationId());
+            com.fooddonation.model.User receiver = userService.getUserById(savedRequest.getReceiverId());
+            
+            notificationService.sendNotification(
+                donation.getUserId(),
+                "New Food Request! 🔔",
+                receiver.getName() + " has requested your " + donation.getFoodType() + ".",
+                "info"
+            );
+        } catch (Exception e) {
+            logger.error("Failed to send real-time notification to donor: {}", e.getMessage());
+        }
+
         return savedRequest;
     }
     
@@ -79,13 +98,21 @@ public class RequestService {
         Request updated = requestRepository.save(request);
         logger.info("Successfully updated status for request ID: {}", id);
 
-        // Send status update email to receiver
+        // Send status update email and real-time notification to receiver
         try {
             com.fooddonation.model.User receiver = userService.getUserById(updated.getReceiverId());
             com.fooddonation.model.FoodDonation donation = foodDonationService.getDonationById(updated.getDonationId());
+            
+            // Email
             emailService.sendRequestUpdateEmail(receiver.getEmail(), donation.getFoodType(), status.name());
+            
+            // Real-time notification
+            String title = status == RequestStatus.approved ? "Request Approved! ✅" : "Request Update 📋";
+            String message = "Your request for " + donation.getFoodType() + " has been " + status.name() + ".";
+            notificationService.sendNotification(receiver.getUserId(), title, message, status == RequestStatus.approved ? "success" : "info");
+            
         } catch (Exception e) {
-            logger.error("Failed to trigger status update email: {}", e.getMessage());
+            logger.error("Failed to trigger notifications: {}", e.getMessage());
         }
 
         return updated;

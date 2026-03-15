@@ -8,6 +8,7 @@ import BrowseDonations from './pages/BrowseDonations';
 import Dashboard from './pages/Dashboard';
 import ProfilePage from './pages/ProfilePage';
 import AdminPanel from './pages/AdminPanel';
+import { NotificationProvider } from './context/NotificationContext';
 
 function App() {
     const [currentUser, setCurrentUser] = useState(null);
@@ -32,32 +33,34 @@ function App() {
 
     return (
         <Router>
-            <div className="app">
-                <Navbar currentUser={currentUser} onLogout={handleLogout} />
-                <main className="main-content">
-                    <Routes>
-                        <Route path="/" element={<Home onLogin={handleLogin} />} />
-                        <Route
-                            path="/donate"
-                            element={currentUser ? <DonatePage currentUser={currentUser} /> : <Navigate to="/" />}
-                        />
-                        <Route path="/browse" element={<BrowseDonations currentUser={currentUser} />} />
-                        <Route
-                            path="/dashboard"
-                            element={currentUser ? <Dashboard currentUser={currentUser} /> : <Navigate to="/" />}
-                        />
-                        <Route
-                            path="/profile"
-                            element={currentUser ? <ProfilePage currentUser={currentUser} onLogin={handleLogin} onLogout={handleLogout} /> : <Navigate to="/" />}
-                        />
-                        <Route
-                            path="/admin"
-                            element={currentUser ? <AdminPanel currentUser={currentUser} /> : <Navigate to="/" />}
-                        />
-                    </Routes>
-                </main>
-                <Footer currentUser={currentUser} />
-            </div>
+            <NotificationProvider currentUser={currentUser}>
+                <div className="app">
+                    <Navbar currentUser={currentUser} onLogout={handleLogout} />
+                    <main className="main-content">
+                        <Routes>
+                            <Route path="/" element={<Home onLogin={handleLogin} />} />
+                            <Route
+                                path="/donate"
+                                element={currentUser ? <DonatePage currentUser={currentUser} /> : <Navigate to="/" />}
+                            />
+                            <Route path="/browse" element={<BrowseDonations currentUser={currentUser} />} />
+                            <Route
+                                path="/dashboard"
+                                element={currentUser ? <Dashboard currentUser={currentUser} /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/profile"
+                                element={currentUser ? <ProfilePage currentUser={currentUser} onLogin={handleLogin} onLogout={handleLogout} /> : <Navigate to="/" />}
+                            />
+                            <Route
+                                path="/admin"
+                                element={currentUser ? <AdminPanel currentUser={currentUser} /> : <Navigate to="/" />}
+                            />
+                        </Routes>
+                    </main>
+                    <Footer currentUser={currentUser} />
+                </div>
+            </NotificationProvider>
         </Router>
     );
 }

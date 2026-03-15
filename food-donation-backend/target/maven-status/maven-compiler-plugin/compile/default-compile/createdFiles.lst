@@ -9,8 +9,11 @@ com\fooddonation\exception\GlobalExceptionHandler.class
 com\fooddonation\exception\ResourceNotFoundException.class
 com\fooddonation\service\RequestService.class
 com\fooddonation\controller\RequestController.class
+com\fooddonation\model\NotificationMessage.class
 com\fooddonation\model\Request.class
+com\fooddonation\service\NotificationService.class
 com\fooddonation\service\AnalyticsService.class
+com\fooddonation\config\WebSocketConfig.class
 com\fooddonation\service\FoodDonationService.class
 com\fooddonation\config\CorsConfig.class
 com\fooddonation\model\Feedback.class

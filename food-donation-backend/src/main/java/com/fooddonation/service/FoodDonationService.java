@@ -17,6 +17,9 @@ public class FoodDonationService {
     
     @Autowired
     private FoodDonationRepository foodDonationRepository;
+
+    @Autowired
+    private NotificationService notificationService;
     
     // Create new donation
     public FoodDonation createDonation(FoodDonation donation) {
@@ -24,6 +27,14 @@ public class FoodDonationService {
         donation.setStatus(DonationStatus.available);
         FoodDonation savedDonation = foodDonationRepository.save(donation);
         logger.info("Successfully created donation with ID: {}", savedDonation.getDonationId());
+
+        // Broadcast notification to all users
+        notificationService.broadcastNotification(
+            "New Food Available! 🍎",
+            "Someone just posted " + savedDonation.getFoodType() + ". Check it out now!",
+            "info"
+        );
+
         return savedDonation;
     }
     
