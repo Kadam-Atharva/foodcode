@@ -16,7 +16,6 @@ function FeedbackDisplay({ donationId }) {
             const response = await feedbackAPI.getFeedbackByDonationId(donationId);
             setFeedbacks(response.data);
 
-            // Fetch user names for each feedback
             const names = {};
             for (const fb of response.data) {
                 if (!names[fb.userId]) {
@@ -77,7 +76,7 @@ function FeedbackDisplay({ donationId }) {
                     <div key={fb.feedbackId} className="feedback-item">
                         <div className="feedback-header">
                             <span className="feedback-user">
-                                👤 {userNames[fb.userId] || 'User'}
+                                {userNames[fb.userId] || 'User'}
                             </span>
                             <div className="feedback-stars">
                                 {renderStars(fb.rating)}

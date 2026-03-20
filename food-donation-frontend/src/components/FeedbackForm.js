@@ -54,7 +54,7 @@ function FeedbackForm({ donationId, userId, onFeedbackSubmitted, onClose }) {
             2: 'Fair',
             3: 'Good',
             4: 'Very Good',
-            5: 'Excellent!'
+            5: 'Excellent'
         };
         return labels[hoveredRating || rating] || 'Select a rating';
     };
@@ -63,8 +63,8 @@ function FeedbackForm({ donationId, userId, onFeedbackSubmitted, onClose }) {
         <div className="feedback-modal-overlay" onClick={onClose}>
             <div className="feedback-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="feedback-modal-header">
-                    <h3>📝 Leave Feedback</h3>
-                    <button className="modal-close" onClick={onClose}>✕</button>
+                    <h3>Leave Feedback</h3>
+                    <button className="modal-close" onClick={onClose}>x</button>
                 </div>
 
                 {error && <div className="error-message">{error}</div>}
@@ -91,7 +91,7 @@ function FeedbackForm({ donationId, userId, onFeedbackSubmitted, onClose }) {
 
                     <div className="form-actions">
                         <button type="submit" className="btn btn-primary" disabled={loading}>
-                            {loading ? 'Submitting...' : '✅ Submit Feedback'}
+                            {loading ? 'Submitting...' : 'Submit Feedback'}
                         </button>
                         <button type="button" className="btn btn-outline" onClick={onClose}>
                             Cancel

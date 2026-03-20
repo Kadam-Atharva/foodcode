@@ -27,10 +27,7 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
 
     const fetchUserStats = async () => {
         try {
-            // Determine which feedback to fetch based on user role
-            // Donors see feedback RECEIVED on their items
-            // Receivers see feedback GIVEN by them
-            const feedbackCall = currentUser.userType === 'donor' 
+            const feedbackCall = currentUser.userType === 'donor'
                 ? feedbackAPI.getFeedbackByDonorId(currentUser.userId)
                 : feedbackAPI.getFeedbackByUserId(currentUser.userId);
 
@@ -67,7 +64,7 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
             const response = await userAPI.updateUser(currentUser.userId, formData);
             const updatedUser = { ...currentUser, ...response.data };
             onLogin(updatedUser);
-            setSuccess('✅ Profile updated successfully!');
+            setSuccess('Profile updated successfully!');
             setIsEditing(false);
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to update profile. Please try again.');
@@ -89,9 +86,9 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
 
     const getRoleBadge = (userType) => {
         const badges = {
-            donor: { icon: '🎁', label: 'Donor', color: '#4CAF50' },
-            receiver: { icon: '🙏', label: 'Receiver', color: '#2196F3' },
-            admin: { icon: '👑', label: 'Admin', color: '#FF6B35' }
+            donor: { label: 'Donor', color: '#4eab68' },
+            receiver: { label: 'Receiver', color: '#4b78d1' },
+            admin: { label: 'Admin', color: '#1f4f2f' }
         };
         return badges[userType] || badges.donor;
     };
@@ -101,28 +98,27 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
     return (
         <div className="profile-page">
             <div className="page-header">
-                <h1>👤 My Profile</h1>
+                <h1>My Profile</h1>
                 <p>Manage your account settings and preferences</p>
             </div>
 
             <div className="profile-container">
-                {/* Profile Card */}
                 <div className="profile-card">
                     <div className="profile-avatar">
                         <div className="avatar-circle">
                             {currentUser.name?.charAt(0)?.toUpperCase() || '?'}
                         </div>
                         <span className="role-badge" style={{ background: roleBadge.color }}>
-                            {roleBadge.icon} {roleBadge.label}
+                            {roleBadge.label}
                         </span>
                     </div>
 
                     <div className="profile-details">
                         <h2>{currentUser.name}</h2>
-                        <p className="profile-email">📧 {currentUser.email}</p>
-                        <p className="profile-phone">📱 {currentUser.phoneNumber || 'Not provided'}</p>
-                        <p className="profile-address">📍 {currentUser.address || 'Not provided'}</p>
-                        <p className="profile-date">📅 Member since: {
+                        <p className="profile-email">Email: {currentUser.email}</p>
+                        <p className="profile-phone">Phone: {currentUser.phoneNumber || 'Not provided'}</p>
+                        <p className="profile-address">Address: {currentUser.address || 'Not provided'}</p>
+                        <p className="profile-date">Member since: {
                             currentUser.createdDate
                                 ? new Date(currentUser.createdDate).toLocaleDateString('en-IN', {
                                     year: 'numeric', month: 'long', day: 'numeric'
@@ -152,7 +148,7 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
                         )}
                         <div className="profile-stat">
                             <span className="profile-stat-number">{stats.totalFeedback}</span>
-                            <span className="profile-stat-label">Feedbacks</span>
+                            <span className="profile-stat-label">Feedback</span>
                         </div>
                     </div>
 
@@ -161,15 +157,14 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
                             className="btn btn-primary"
                             onClick={() => setIsEditing(true)}
                         >
-                            ✏️ Edit Profile
+                            Edit Profile
                         </button>
                     )}
                 </div>
 
-                {/* Edit Form */}
                 {isEditing && (
                     <div className="profile-edit-card">
-                        <h2>✏️ Edit Profile</h2>
+                        <h2>Edit Profile</h2>
 
                         {error && <div className="error-message">{error}</div>}
                         {success && <div className="success-message">{success}</div>}
@@ -211,7 +206,7 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
 
                             <div className="form-actions">
                                 <button type="submit" className="btn btn-primary" disabled={loading}>
-                                    {loading ? 'Saving...' : '💾 Save Changes'}
+                                    {loading ? 'Saving...' : 'Save Changes'}
                                 </button>
                                 <button
                                     type="button"
@@ -232,16 +227,15 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
                     </div>
                 )}
 
-                {/* Danger Zone */}
                 <div className="danger-zone">
-                    <h3>⚠️ Danger Zone</h3>
+                    <h3>Danger Zone</h3>
                     <p>Once you delete your account, there is no going back. Please be certain.</p>
                     {!showDeleteConfirm ? (
                         <button
                             className="btn btn-danger"
                             onClick={() => setShowDeleteConfirm(true)}
                         >
-                            🗑️ Delete Account
+                            Delete Account
                         </button>
                     ) : (
                         <div className="delete-confirm">

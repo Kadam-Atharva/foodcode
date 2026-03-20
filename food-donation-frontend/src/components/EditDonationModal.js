@@ -35,7 +35,7 @@ function EditDonationModal({ donation, onDonationUpdated, onClose }) {
 
             const updateData = {
                 ...formData,
-                imageUrl: imageUrl,
+                imageUrl,
                 userId: donation.userId
             };
             await donationAPI.updateDonation(donation.donationId, updateData);
@@ -52,8 +52,8 @@ function EditDonationModal({ donation, onDonationUpdated, onClose }) {
         <div className="feedback-modal-overlay" onClick={onClose}>
             <div className="feedback-modal edit-donation-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="feedback-modal-header">
-                    <h3>✏️ Edit Donation</h3>
-                    <button className="modal-close" onClick={onClose}>✕</button>
+                    <h3>Edit Donation</h3>
+                    <button className="modal-close" onClick={onClose}>x</button>
                 </div>
 
                 {error && <div className="error-message">{error}</div>}
@@ -81,7 +81,7 @@ function EditDonationModal({ donation, onDonationUpdated, onClose }) {
                             onChange={(e) => setImageFile(e.target.files[0])}
                         />
                         {donation.imageUrl && !imageFile && (
-                            <p className="small-text">Current image stored. Upload new to replace.</p>
+                            <p className="small-text">Current image stored. Upload a new file to replace it.</p>
                         )}
                     </div>
 
@@ -134,7 +134,7 @@ function EditDonationModal({ donation, onDonationUpdated, onClose }) {
 
                     <div className="form-actions">
                         <button type="submit" className="btn btn-primary" disabled={loading}>
-                            {loading ? 'Saving...' : '💾 Save Changes'}
+                            {loading ? 'Saving...' : 'Save Changes'}
                         </button>
                         <button type="button" className="btn btn-outline" onClick={onClose}>
                             Cancel

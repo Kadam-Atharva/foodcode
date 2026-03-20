@@ -43,14 +43,13 @@ function DonatePage({ currentUser }) {
 
             const donationData = {
                 ...formData,
-                imageUrl: imageUrl,
+                imageUrl,
                 userId: currentUser.userId
             };
 
             await donationAPI.createDonation(donationData);
-            setSuccess('✅ Donation posted successfully!');
+            setSuccess('Donation posted successfully!');
 
-            // Reset form
             setFormData({
                 foodType: '',
                 quantity: '',
@@ -61,7 +60,6 @@ function DonatePage({ currentUser }) {
                 longitude: null
             });
 
-            // Redirect to dashboard after 2 seconds
             setTimeout(() => {
                 navigate('/dashboard');
             }, 2000);
@@ -74,9 +72,8 @@ function DonatePage({ currentUser }) {
 
     useEffect(() => {
         if (window.L && mapRef.current && !mapInstanceRef.current) {
-            // Default center (Mumbai)
             const defaultPos = [19.0760, 72.8777];
-            
+
             const map = window.L.map(mapRef.current).setView(defaultPos, 13);
             mapInstanceRef.current = map;
 
@@ -89,7 +86,6 @@ function DonatePage({ currentUser }) {
             }).addTo(map);
             markerRef.current = marker;
 
-            // Try to get user's current location
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
                     const { latitude, longitude } = position.coords;
@@ -126,7 +122,7 @@ function DonatePage({ currentUser }) {
                 }));
             }
         } catch (err) {
-            console.error("Geocoding error:", err);
+            console.error('Geocoding error:', err);
             updateCoords(lat, lng);
         }
     };
@@ -142,7 +138,7 @@ function DonatePage({ currentUser }) {
     return (
         <div className="donate-page">
             <div className="page-header">
-                <h1>🍽️ Donate Food</h1>
+                <h1>Donate Food</h1>
                 <p>Share your surplus food and make a difference</p>
             </div>
 
@@ -150,18 +146,18 @@ function DonatePage({ currentUser }) {
                 <div className="donate-info">
                     <h2>Why Donate?</h2>
                     <ul>
-                        <li>✅ Reduce food wastage</li>
-                        <li>❤️ Help those in need</li>
-                        <li>🌍 Contribute to sustainability</li>
-                        <li>🤝 Build community connections</li>
+                        <li>Reduce food wastage</li>
+                        <li>Help those in need</li>
+                        <li>Contribute to sustainability</li>
+                        <li>Build community connections</li>
                     </ul>
 
                     <div className="tips">
                         <h3>Tips for Donors</h3>
-                        <p>• Ensure food is fresh and safe to consume</p>
-                        <p>• Provide accurate expiry information</p>
-                        <p>• Be available for pickup coordination</p>
-                        <p>• Pack food properly for transport</p>
+                        <p>Ensure food is fresh and safe to consume.</p>
+                        <p>Provide accurate expiry information.</p>
+                        <p>Be available for pickup coordination.</p>
+                        <p>Pack food properly for transport.</p>
                     </div>
                 </div>
 
@@ -234,20 +230,20 @@ function DonatePage({ currentUser }) {
 
                         <div className="form-group">
                             <label>Pin Location on Map *</label>
-                            <p className="small-text">Drag the marker or click on the map to set exact location</p>
-                            <div 
-                                ref={mapRef} 
-                                style={{ 
-                                    width: '100%', 
-                                    height: '300px', 
-                                    borderRadius: '8px', 
+                            <p className="small-text">Drag the marker or click on the map to set the exact location.</p>
+                            <div
+                                ref={mapRef}
+                                style={{
+                                    width: '100%',
+                                    height: '300px',
+                                    borderRadius: '8px',
                                     border: '1px solid #ddd',
-                                    marginBottom: '1rem' 
+                                    marginBottom: '1rem'
                                 }}
                             ></div>
                             {formData.latitude && (
                                 <p className="success-text" style={{ fontSize: '0.85rem' }}>
-                                    📍 Coordinates Set: {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}
+                                    Coordinates set: {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}
                                 </p>
                             )}
                         </div>
@@ -265,7 +261,7 @@ function DonatePage({ currentUser }) {
                         </div>
 
                         <button type="submit" className="btn btn-primary btn-large" disabled={loading}>
-                            {loading ? 'Posting...' : '🎁 Post Donation'}
+                            {loading ? 'Posting...' : 'Post Donation'}
                         </button>
                     </form>
                 </div>
