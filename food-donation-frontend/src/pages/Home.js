@@ -68,58 +68,55 @@ function Home({ onLogin }) {
 
     return (
         <div className="home-page">
-            {/* Hero Section */}
             <section className="hero">
                 <div className="hero-content">
-                    <h1 className="hero-title">Share Food, Share Love 🍽️❤️</h1>
+                    <h1 className="hero-title">Share Food, Share Hope</h1>
                     <p className="hero-subtitle">
-                        Join India's movement to reduce food waste and feed those in need
+                        A cleaner, calmer way to reduce waste and help people nearby with food that still matters.
                     </p>
                     <div className="hero-stats">
                         <div className="stat">
-                            <h3>🌾 Zero Waste</h3>
-                            <p>Reduce food wastage</p>
+                            <h3>Zero Waste</h3>
+                            <p>Turn extra meals into meaningful impact.</p>
                         </div>
                         <div className="stat">
-                            <h3>❤️ Help Others</h3>
-                            <p>Feed the hungry</p>
+                            <h3>Fast Matching</h3>
+                            <p>Help donors and receivers connect quickly.</p>
                         </div>
                         <div className="stat">
-                            <h3>🤝 Community</h3>
-                            <p>Build connections</p>
+                            <h3>Local Community</h3>
+                            <p>Build trust through nearby food sharing.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* How It Works Section */}
             <section className="how-it-works">
                 <h2>How It Works</h2>
                 <div className="steps">
                     <div className="step">
                         <div className="step-number">1</div>
                         <h3>Register</h3>
-                        <p>Create an account as a donor or receiver</p>
+                        <p>Create an account as a donor or receiver.</p>
                     </div>
                     <div className="step">
                         <div className="step-number">2</div>
-                        <h3>Donate or Browse</h3>
-                        <p>Post surplus food or browse available donations</p>
+                        <h3>Share or Browse</h3>
+                        <p>Post surplus food or explore nearby donations.</p>
                     </div>
                     <div className="step">
                         <div className="step-number">3</div>
                         <h3>Connect</h3>
-                        <p>Request food and arrange pickup</p>
+                        <p>Request food and coordinate pickup.</p>
                     </div>
                     <div className="step">
                         <div className="step-number">4</div>
                         <h3>Make Impact</h3>
-                        <p>Reduce waste and help those in need</p>
+                        <p>Reduce waste and feed someone with dignity.</p>
                     </div>
                 </div>
             </section>
 
-            {/* Login/Register Section */}
             <section className="auth-section">
                 <div className="auth-container">
                     <div className="auth-toggle">
@@ -141,7 +138,7 @@ function Home({ onLogin }) {
 
                     {showLogin ? (
                         <form onSubmit={handleLogin} className="auth-form">
-                            <h2>Welcome Back!</h2>
+                            <h2>Welcome Back</h2>
                             <input
                                 type="email"
                                 name="email"
@@ -203,8 +200,8 @@ function Home({ onLogin }) {
                                 onChange={handleChange}
                                 required
                             >
-                                <option value="donor">Donor (I want to donate food)</option>
-                                <option value="receiver">Receiver (I need food)</option>
+                                <option value="donor">Donor - I want to donate food</option>
+                                <option value="receiver">Receiver - I need food</option>
                             </select>
                             <textarea
                                 name="address"

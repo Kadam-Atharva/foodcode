@@ -8,7 +8,7 @@ function Navbar({ currentUser, onLogout }) {
         <nav className="navbar">
             <div className="nav-container">
                 <Link to="/" className="nav-logo">
-                    <span className="logo-icon">🍽️</span>
+                    <span className="logo-icon">FS</span>
                     <span className="logo-text">FoodShare</span>
                 </Link>
 
@@ -17,7 +17,7 @@ function Navbar({ currentUser, onLogout }) {
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     aria-label="Toggle menu"
                 >
-                    {mobileMenuOpen ? '✕' : '☰'}
+                    {mobileMenuOpen ? 'Close' : 'Menu'}
                 </button>
 
                 <ul className={`nav-menu ${mobileMenuOpen ? 'nav-menu-open' : ''}`}>
@@ -45,7 +45,7 @@ function Navbar({ currentUser, onLogout }) {
                             {currentUser.userType === 'admin' && (
                                 <li className="nav-item">
                                     <Link to="/admin" className="nav-link nav-link-admin" onClick={() => setMobileMenuOpen(false)}>
-                                        👑 Admin
+                                        Admin
                                     </Link>
                                 </li>
                             )}
@@ -57,12 +57,12 @@ function Navbar({ currentUser, onLogout }) {
                     {currentUser ? (
                         <div className="user-info">
                             <Link to="/profile" className="user-name-link">
-                                <span className="user-name">👋 {currentUser.name}</span>
+                                <span className="user-name">{currentUser.name}</span>
                             </Link>
                             <button onClick={onLogout} className="btn btn-outline">Logout</button>
                         </div>
                     ) : (
-                        <span className="login-prompt">Please login on Home page</span>
+                        <span className="login-prompt">Please login on the Home page</span>
                     )}
                 </div>
             </div>

@@ -13,9 +13,9 @@ function DonationCard({ donation, onRequestClick, currentUser, showActions = tru
 
     const getStatusBadge = (status) => {
         const badges = {
-            available: '✅ Available',
-            claimed: '📦 Claimed',
-            completed: '✔️ Completed'
+            available: 'Available',
+            claimed: 'Claimed',
+            completed: 'Completed'
         };
         return badges[status] || status;
     };
@@ -36,21 +36,21 @@ function DonationCard({ donation, onRequestClick, currentUser, showActions = tru
                     </div>
                 )}
                 <p className="card-info">
-                    <strong>📦 Quantity:</strong> {donation.quantity}
+                    <strong>Quantity:</strong> {donation.quantity}
                 </p>
                 <p className="card-info">
-                    <strong>⏰ Expires:</strong> {formatDate(donation.expiryTime)}
+                    <strong>Expires:</strong> {formatDate(donation.expiryTime)}
                 </p>
                 <p className="card-info">
-                    <strong>📍 Pickup:</strong> {donation.pickupAddress}
+                    <strong>Pickup:</strong> {donation.pickupAddress}
                 </p>
                 {donation.description && (
                     <p className="card-description">
-                        <strong>📝 Description:</strong> {donation.description}
+                        <strong>Description:</strong> {donation.description}
                     </p>
                 )}
                 <p className="card-info">
-                    <strong>📅 Posted:</strong> {formatDate(donation.createdDate)}
+                    <strong>Posted:</strong> {formatDate(donation.createdDate)}
                 </p>
             </div>
 

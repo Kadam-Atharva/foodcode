@@ -5,8 +5,8 @@ function Footer({ currentUser }) {
         <footer className="footer">
             <div className="footer-container">
                 <div className="footer-section">
-                    <h3>🍽️ FoodShare</h3>
-                    <p>Reducing food waste, feeding hope</p>
+                    <h3>FoodShare</h3>
+                    <p>Reducing food waste, feeding hope.</p>
                 </div>
 
                 <div className="footer-section">
@@ -31,15 +31,15 @@ function Footer({ currentUser }) {
                 <div className="footer-section">
                     <h4>Follow Us</h4>
                     <div className="social-links">
-                        <span>📘 Facebook</span>
-                        <span>📷 Instagram</span>
-                        <span>🐦 Twitter</span>
+                        <span>Facebook</span>
+                        <span>Instagram</span>
+                        <span>Twitter</span>
                     </div>
                 </div>
             </div>
 
             <div className="footer-bottom">
-                <p>&copy; 2026 FoodShare Platform. All rights reserved. Made with ❤️ for India</p>
+                <p>&copy; 2026 FoodShare Platform. Built to help communities share food with dignity.</p>
             </div>
         </footer>
     );
