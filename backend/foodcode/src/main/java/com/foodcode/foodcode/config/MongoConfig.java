@@ -17,7 +17,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     @Bean
     public MongoClient mongoClient() {
         return MongoClients.create(
-                "mongodb url"
+                ""
         );
     }
 }

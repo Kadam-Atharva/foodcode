@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { userAPI, donationAPI, requestAPI, feedbackAPI } from '../services/api';
+import { userAPI, foodAPI } from '../services/api';
 
 function ProfilePage({ currentUser, onLogin, onLogout }) {
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         name: currentUser?.name || '',
-        phoneNumber: currentUser?.phoneNumber || '',
-        address: currentUser?.address || ''
+        phone: currentUser?.phone || '',
     });
     const [stats, setStats] = useState({
-        totalDonations: 0,
-        totalRequests: 0,
-        totalFeedback: 0,
-        completedDonations: 0
+        totalFoods: 0,
+        claimedFoods: 0
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -26,21 +23,16 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
     }, [currentUser]);
 
     const fetchUserStats = async () => {
+        const uid = currentUser?.id || currentUser?.userId;
+        if (!uid) return;
+        
         try {
-            const feedbackCall = currentUser.userType === 'donor'
-                ? feedbackAPI.getFeedbackByDonorId(currentUser.userId)
-                : feedbackAPI.getFeedbackByUserId(currentUser.userId);
-
-            const [donationsRes, requestsRes, feedbackRes] = await Promise.all([
-                donationAPI.getDonationsByUserId(currentUser.userId),
-                requestAPI.getRequestsByReceiverId(currentUser.userId),
-                feedbackCall
-            ]);
+            const foodsRes = await foodAPI.getAllFoods();
+            const myFoods = foodsRes.data.filter(f => f.donorId === uid);
+            
             setStats({
-                totalDonations: donationsRes.data.length,
-                totalRequests: requestsRes.data.length,
-                totalFeedback: feedbackRes.data.length,
-                completedDonations: donationsRes.data.filter(d => d.status === 'completed').length
+                totalFoods: myFoods.length,
+                claimedFoods: myFoods.filter(f => f.claimed).length
             });
         } catch (err) {
             console.error('Failed to fetch stats:', err);
@@ -60,8 +52,10 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
         setSuccess('');
         setLoading(true);
 
+        const uid = currentUser?.id || currentUser?.userId;
+
         try {
-            const response = await userAPI.updateUser(currentUser.userId, formData);
+            const response = await userAPI.updateUser(uid, formData);
             const updatedUser = { ...currentUser, ...response.data };
             onLogin(updatedUser);
             setSuccess('Profile updated successfully!');
@@ -74,8 +68,9 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
     };
 
     const handleDeleteAccount = async () => {
+        const uid = currentUser?.id || currentUser?.userId;
         try {
-            await userAPI.deleteUser(currentUser.userId);
+            await userAPI.deleteUser(uid);
             onLogout();
             navigate('/');
             alert('Your account has been deleted successfully.');
@@ -84,16 +79,17 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
         }
     };
 
-    const getRoleBadge = (userType) => {
+    const getRoleBadge = (role) => {
         const badges = {
-            donor: { label: 'Donor', color: '#4eab68' },
-            receiver: { label: 'Receiver', color: '#4b78d1' },
-            admin: { label: 'Admin', color: '#1f4f2f' }
+            admin: { label: 'Admin', color: '#1f4f2f' },
+            user: { label: 'User', color: '#4eab68' }
         };
-        return badges[userType] || badges.donor;
+        // default fallback
+        return badges[role?.toLowerCase()] || { label: role || 'User', color: '#4b78d1' };
     };
 
-    const roleBadge = getRoleBadge(currentUser.userType);
+    const roleString = currentUser?.role || currentUser?.userType || 'user';
+    const roleBadge = getRoleBadge(roleString);
 
     return (
         <div className="profile-page">
@@ -116,39 +112,17 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
                     <div className="profile-details">
                         <h2>{currentUser.name}</h2>
                         <p className="profile-email">Email: {currentUser.email}</p>
-                        <p className="profile-phone">Phone: {currentUser.phoneNumber || 'Not provided'}</p>
-                        <p className="profile-address">Address: {currentUser.address || 'Not provided'}</p>
-                        <p className="profile-date">Member since: {
-                            currentUser.createdDate
-                                ? new Date(currentUser.createdDate).toLocaleDateString('en-IN', {
-                                    year: 'numeric', month: 'long', day: 'numeric'
-                                })
-                                : 'N/A'
-                        }</p>
+                        <p className="profile-phone">Phone: {currentUser.phone || currentUser.phoneNumber || 'Not provided'}</p>
                     </div>
 
                     <div className="profile-stats-grid">
-                        {(currentUser.userType === 'donor' || currentUser.userType === 'admin') && (
-                            <div className="profile-stat">
-                                <span className="profile-stat-number">{stats.totalDonations}</span>
-                                <span className="profile-stat-label">Donations</span>
-                            </div>
-                        )}
-                        {(currentUser.userType === 'receiver' || currentUser.userType === 'admin') && (
-                            <div className="profile-stat">
-                                <span className="profile-stat-number">{stats.totalRequests}</span>
-                                <span className="profile-stat-label">Requests</span>
-                            </div>
-                        )}
-                        {(currentUser.userType === 'donor' || currentUser.userType === 'admin') && (
-                            <div className="profile-stat">
-                                <span className="profile-stat-number">{stats.completedDonations}</span>
-                                <span className="profile-stat-label">Completed</span>
-                            </div>
-                        )}
                         <div className="profile-stat">
-                            <span className="profile-stat-number">{stats.totalFeedback}</span>
-                            <span className="profile-stat-label">Feedback</span>
+                            <span className="profile-stat-number">{stats.totalFoods}</span>
+                            <span className="profile-stat-label">Foods Posted</span>
+                        </div>
+                        <div className="profile-stat">
+                            <span className="profile-stat-number">{stats.claimedFoods}</span>
+                            <span className="profile-stat-label">Foods Claimed</span>
                         </div>
                     </div>
 
@@ -183,24 +157,13 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="phoneNumber">Phone Number</label>
+                                <label htmlFor="phone">Phone Number</label>
                                 <input
                                     type="tel"
-                                    id="phoneNumber"
-                                    name="phoneNumber"
-                                    value={formData.phoneNumber}
+                                    id="phone"
+                                    name="phone"
+                                    value={formData.phone}
                                     onChange={handleChange}
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="address">Address</label>
-                                <textarea
-                                    id="address"
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleChange}
-                                    rows="3"
                                 />
                             </div>
 
@@ -215,8 +178,7 @@ function ProfilePage({ currentUser, onLogin, onLogout }) {
                                         setIsEditing(false);
                                         setFormData({
                                             name: currentUser.name,
-                                            phoneNumber: currentUser.phoneNumber || '',
-                                            address: currentUser.address || ''
+                                            phone: currentUser.phone || currentUser.phoneNumber || '',
                                         });
                                     }}
                                 >

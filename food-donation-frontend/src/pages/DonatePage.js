@@ -1,25 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { donationAPI, fileAPI } from '../services/api';
+import { foodAPI } from '../services/api';
 
 function DonatePage({ currentUser }) {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        foodType: '',
+        title: '',
         quantity: '',
-        expiryTime: '',
-        pickupAddress: '',
-        description: '',
-        latitude: null,
-        longitude: null
+        description: ''
     });
-    const mapRef = useRef(null);
-    const markerRef = useRef(null);
-    const mapInstanceRef = useRef(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
-    const [imageFile, setImageFile] = useState(null);
 
     const handleChange = (e) => {
         setFormData({
@@ -35,104 +27,29 @@ function DonatePage({ currentUser }) {
         setLoading(true);
 
         try {
-            let imageUrl = null;
-            if (imageFile) {
-                const uploadRes = await fileAPI.uploadImage(imageFile);
-                imageUrl = uploadRes.data.imageUrl;
-            }
-
-            const donationData = {
+            const foodData = {
                 ...formData,
-                imageUrl,
-                userId: currentUser.userId
+                donorId: currentUser.id || currentUser.userId,
+                claimed: false
             };
 
-            await donationAPI.createDonation(donationData);
-            setSuccess('Donation posted successfully!');
+            await foodAPI.createFood(foodData);
+            setSuccess('Food posted successfully!');
 
             setFormData({
-                foodType: '',
+                title: '',
                 quantity: '',
-                expiryTime: '',
-                pickupAddress: '',
-                description: '',
-                latitude: null,
-                longitude: null
+                description: ''
             });
 
             setTimeout(() => {
                 navigate('/dashboard');
             }, 2000);
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to create donation. Please try again.');
+            setError(err.response?.data?.error || 'Failed to create food post. Please try again.');
         } finally {
             setLoading(false);
         }
-    };
-
-    useEffect(() => {
-        if (window.L && mapRef.current && !mapInstanceRef.current) {
-            const defaultPos = [19.0760, 72.8777];
-
-            const map = window.L.map(mapRef.current).setView(defaultPos, 13);
-            mapInstanceRef.current = map;
-
-            window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
-
-            const marker = window.L.marker(defaultPos, {
-                draggable: true
-            }).addTo(map);
-            markerRef.current = marker;
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    const { latitude, longitude } = position.coords;
-                    const userPos = [latitude, longitude];
-                    map.setView(userPos, 15);
-                    marker.setLatLng(userPos);
-                    reverseGeocode(latitude, longitude);
-                });
-            }
-
-            marker.on('dragend', () => {
-                const pos = marker.getLatLng();
-                reverseGeocode(pos.lat, pos.lng);
-            });
-
-            map.on('click', (e) => {
-                const pos = e.latlng;
-                marker.setLatLng(pos);
-                reverseGeocode(pos.lat, pos.lng);
-            });
-        }
-    }, []);
-
-    const reverseGeocode = async (lat, lng) => {
-        try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-            const data = await res.json();
-            if (data.display_name) {
-                setFormData(prev => ({
-                    ...prev,
-                    pickupAddress: data.display_name,
-                    latitude: lat,
-                    longitude: lng
-                }));
-            }
-        } catch (err) {
-            console.error('Geocoding error:', err);
-            updateCoords(lat, lng);
-        }
-    };
-
-    const updateCoords = (lat, lng) => {
-        setFormData(prev => ({
-            ...prev,
-            latitude: lat,
-            longitude: lng
-        }));
     };
 
     return (
@@ -155,8 +72,6 @@ function DonatePage({ currentUser }) {
                     <div className="tips">
                         <h3>Tips for Donors</h3>
                         <p>Ensure food is fresh and safe to consume.</p>
-                        <p>Provide accurate expiry information.</p>
-                        <p>Be available for pickup coordination.</p>
                         <p>Pack food properly for transport.</p>
                     </div>
                 </div>
@@ -167,85 +82,29 @@ function DonatePage({ currentUser }) {
 
                     <form onSubmit={handleSubmit} className="donate-form">
                         <div className="form-group">
-                            <label htmlFor="foodType">Food Type *</label>
+                            <label htmlFor="title">Food Title *</label>
                             <input
                                 type="text"
-                                id="foodType"
-                                name="foodType"
+                                id="title"
+                                name="title"
                                 placeholder="e.g., Rice, Curry, Snacks, Fruits"
-                                value={formData.foodType}
+                                value={formData.title}
                                 onChange={handleChange}
                                 required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="imageFile">Food Image (Optional)</label>
-                            <input
-                                type="file"
-                                id="imageFile"
-                                name="imageFile"
-                                accept="image/*"
-                                onChange={(e) => setImageFile(e.target.files[0])}
                             />
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="quantity">Quantity *</label>
                             <input
-                                type="text"
+                                type="number"
                                 id="quantity"
                                 name="quantity"
-                                placeholder="e.g., 5 kg, 20 plates, 10 boxes"
+                                placeholder="e.g., 5, 20, 10"
                                 value={formData.quantity}
                                 onChange={handleChange}
                                 required
                             />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="expiryTime">Expiry Date & Time *</label>
-                            <input
-                                type="datetime-local"
-                                id="expiryTime"
-                                name="expiryTime"
-                                value={formData.expiryTime}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="pickupAddress">Pickup Address *</label>
-                            <textarea
-                                id="pickupAddress"
-                                name="pickupAddress"
-                                placeholder="Enter complete pickup address with landmarks"
-                                value={formData.pickupAddress}
-                                onChange={handleChange}
-                                rows="3"
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label>Pin Location on Map *</label>
-                            <p className="small-text">Drag the marker or click on the map to set the exact location.</p>
-                            <div
-                                ref={mapRef}
-                                style={{
-                                    width: '100%',
-                                    height: '300px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #ddd',
-                                    marginBottom: '1rem'
-                                }}
-                            ></div>
-                            {formData.latitude && (
-                                <p className="success-text" style={{ fontSize: '0.85rem' }}>
-                                    Coordinates set: {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}
-                                </p>
-                            )}
                         </div>
 
                         <div className="form-group">
@@ -261,7 +120,7 @@ function DonatePage({ currentUser }) {
                         </div>
 
                         <button type="submit" className="btn btn-primary btn-large" disabled={loading}>
-                            {loading ? 'Posting...' : 'Post Donation'}
+                            {loading ? 'Posting...' : 'Post Food'}
                         </button>
                     </form>
                 </div>

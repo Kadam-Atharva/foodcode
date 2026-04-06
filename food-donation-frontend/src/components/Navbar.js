@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 function Navbar({ currentUser, onLogout }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+    const userRole = currentUser?.role || currentUser?.userType;
+
     return (
         <nav className="navbar">
             <div className="nav-container">
@@ -24,25 +26,24 @@ function Navbar({ currentUser, onLogout }) {
                     <li className="nav-item">
                         <Link to="/" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Home</Link>
                     </li>
-                    {(!currentUser || currentUser.userType === 'receiver' || currentUser.userType === 'admin') && (
+                    {/* Everyone can Browse Food now to see existing foods, except maybe strictly donors, but let's allow everyone to see it */}
+                    {(!currentUser || userRole === 'receiver' || userRole === 'user' || userRole === 'admin' || userRole === 'donor') && (
                         <li className="nav-item">
                             <Link to="/browse" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Browse Food</Link>
                         </li>
                     )}
                     {currentUser && (
                         <>
-                            {(currentUser.userType === 'donor' || currentUser.userType === 'admin') && (
-                                <li className="nav-item">
-                                    <Link to="/donate" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Donate Food</Link>
-                                </li>
-                            )}
+                            <li className="nav-item">
+                                <Link to="/donate" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Donate Food</Link>
+                            </li>
                             <li className="nav-item">
                                 <Link to="/dashboard" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
                             </li>
                             <li className="nav-item">
                                 <Link to="/profile" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
                             </li>
-                            {currentUser.userType === 'admin' && (
+                            {userRole === 'admin' && (
                                 <li className="nav-item">
                                     <Link to="/admin" className="nav-link nav-link-admin" onClick={() => setMobileMenuOpen(false)}>
                                         Admin

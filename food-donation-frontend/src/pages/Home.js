@@ -8,10 +8,8 @@ function Home({ onLogin }) {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        password: '',
-        phoneNumber: '',
-        userType: 'donor',
-        address: ''
+        phone: '',
+        role: 'user'
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -29,18 +27,25 @@ function Home({ onLogin }) {
         setLoading(true);
 
         try {
-            const response = await userAPI.login({
-                email: formData.email,
-                password: formData.password
-            });
-            onLogin(response.data);
-            if (response.data.userType === 'donor') {
-                navigate('/dashboard');
+            // Simulate login by verifying email exists in backend
+            const response = await userAPI.getAllUsers();
+            const users = response.data;
+            const matchedUser = users.find(u => u.email.toLowerCase() === formData.email.toLowerCase());
+
+            if (matchedUser) {
+                onLogin(matchedUser);
+                if (matchedUser.role === 'admin') {
+                    navigate('/admin');
+                } else if (matchedUser.role === 'donor') {
+                    navigate('/dashboard');
+                } else {
+                    navigate('/browse');
+                }
             } else {
-                navigate('/browse');
+                setError('Account not found. Please register or check your email.');
             }
         } catch (err) {
-            setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
+            setError(err.response?.data?.error || 'Login failed. Could not fetch users.');
         } finally {
             setLoading(false);
         }
@@ -52,9 +57,14 @@ function Home({ onLogin }) {
         setLoading(true);
 
         try {
-            const response = await userAPI.register(formData);
+            const response = await userAPI.register({
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                role: formData.role
+            });
             onLogin(response.data);
-            if (response.data.userType === 'donor') {
+            if (response.data.role === 'donor') {
                 navigate('/dashboard');
             } else {
                 navigate('/browse');
@@ -107,7 +117,7 @@ function Home({ onLogin }) {
                     <div className="step">
                         <div className="step-number">3</div>
                         <h3>Connect</h3>
-                        <p>Request food and coordinate pickup.</p>
+                        <p>Claim food to let others know.</p>
                     </div>
                     <div className="step">
                         <div className="step-number">4</div>
@@ -139,19 +149,14 @@ function Home({ onLogin }) {
                     {showLogin ? (
                         <form onSubmit={handleLogin} className="auth-form">
                             <h2>Welcome Back</h2>
+                            <p className="auth-hint" style={{fontSize: '0.85rem', color: '#666', marginBottom: '1rem'}}>
+                                Since backend authentication is simulated, you only need to enter your email.
+                            </p>
                             <input
                                 type="email"
                                 name="email"
                                 placeholder="Email"
                                 value={formData.email}
-                                onChange={handleChange}
-                                required
-                            />
-                            <input
-                                type="password"
-                                name="password"
-                                placeholder="Password"
-                                value={formData.password}
                                 onChange={handleChange}
                                 required
                             />
@@ -162,6 +167,9 @@ function Home({ onLogin }) {
                     ) : (
                         <form onSubmit={handleRegister} className="auth-form">
                             <h2>Join FoodShare</h2>
+                            <p className="auth-hint" style={{fontSize: '0.85rem', color: '#666', marginBottom: '1rem'}}>
+                                Passwords are not required in this version.
+                            </p>
                             <input
                                 type="text"
                                 name="name"
@@ -179,38 +187,22 @@ function Home({ onLogin }) {
                                 required
                             />
                             <input
-                                type="password"
-                                name="password"
-                                placeholder="Password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                            />
-                            <input
                                 type="tel"
-                                name="phoneNumber"
+                                name="phone"
                                 placeholder="Phone Number"
-                                value={formData.phoneNumber}
+                                value={formData.phone}
                                 onChange={handleChange}
                                 required
                             />
                             <select
-                                name="userType"
-                                value={formData.userType}
+                                name="role"
+                                value={formData.role}
                                 onChange={handleChange}
                                 required
                             >
+                                <option value="user">Receiver - I need food</option>
                                 <option value="donor">Donor - I want to donate food</option>
-                                <option value="receiver">Receiver - I need food</option>
                             </select>
-                            <textarea
-                                name="address"
-                                placeholder="Address"
-                                value={formData.address}
-                                onChange={handleChange}
-                                rows="3"
-                                required
-                            />
                             <button type="submit" className="btn btn-primary" disabled={loading}>
                                 {loading ? 'Registering...' : 'Register'}
                             </button>

@@ -12,52 +12,23 @@ const api = axios.create({
 
 // User API
 export const userAPI = {
-    register: (userData) => api.post('/users/register', userData),
-    login: (credentials) => api.post('/users/login', credentials),
+    register: (userData) => api.post('/users', userData),
     getAllUsers: () => api.get('/users'),
     getUserById: (id) => api.get(`/users/${id}`),
     updateUser: (id, userData) => api.put(`/users/${id}`, userData),
     deleteUser: (id) => api.delete(`/users/${id}`)
 };
 
-// Food Donation API
-export const donationAPI = {
-    createDonation: (donationData) => api.post('/donations', donationData),
-    getAllDonations: () => api.get('/donations'),
-    getDonationById: (id) => api.get(`/donations/${id}`),
-    getDonationsByUserId: (userId) => api.get(`/donations/user/${userId}`),
-    getAvailableDonations: () => api.get('/donations/available'),
-    searchDonations: (foodType) => api.get(`/donations/search?foodType=${foodType}`),
-    updateDonation: (id, donationData) => api.put(`/donations/${id}`, donationData),
-    updateDonationStatus: (id, status) => api.patch(`/donations/${id}/status`, { status }),
-    deleteDonation: (id) => api.delete(`/donations/${id}`)
+// Food API
+export const foodAPI = {
+    createFood: (foodData) => api.post('/foods', foodData),
+    getAllFoods: () => api.get('/foods'),
+    getFoodById: (id) => api.get(`/foods/${id}`),
+    updateFood: (id, foodData) => api.put(`/foods/${id}`, foodData),
+    deleteFood: (id) => api.delete(`/foods/${id}`)
 };
 
-// Request API
-export const requestAPI = {
-    createRequest: (requestData) => api.post('/requests', requestData),
-    getAllRequests: () => api.get('/requests'),
-    getRequestById: (id) => api.get(`/requests/${id}`),
-    getRequestsByDonationId: (donationId) => api.get(`/requests/donation/${donationId}`),
-    getRequestsByReceiverId: (receiverId) => api.get(`/requests/receiver/${receiverId}`),
-    updateRequestStatus: (id, status) => api.patch(`/requests/${id}/status`, { status }),
-    updateRequest: (id, requestData) => api.put(`/requests/${id}`, requestData),
-    deleteRequest: (id) => api.delete(`/requests/${id}`)
-};
-
-// Feedback API
-export const feedbackAPI = {
-    createFeedback: (feedbackData) => api.post('/feedback', feedbackData),
-    getAllFeedback: () => api.get('/feedback'),
-    getFeedbackById: (id) => api.get(`/feedback/${id}`),
-    getFeedbackByDonationId: (donationId) => api.get(`/feedback/donation/${donationId}`),
-    getFeedbackByUserId: (userId) => api.get(`/feedback/user/${userId}`),
-    getFeedbackByDonorId: (donorId) => api.get(`/feedback/donor/${donorId}`),
-    updateFeedback: (id, feedbackData) => api.put(`/feedback/${id}`, feedbackData),
-    deleteFeedback: (id) => api.delete(`/feedback/${id}`)
-};
-
-// File Upload API
+// File Upload API (Retained just in case it's implemented externally)
 export const fileAPI = {
     uploadImage: (file) => {
         const formData = new FormData();
@@ -68,11 +39,6 @@ export const fileAPI = {
             }
         });
     }
-};
-
-// Analytics API
-export const analyticsAPI = {
-    getStats: () => api.get('/analytics/stats')
 };
 
 export default api;
