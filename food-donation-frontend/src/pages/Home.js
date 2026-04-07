@@ -127,7 +127,7 @@ function Home({ onLogin }) {
                 </div>
             </section>
 
-            <section className="auth-section">
+            <section className="auth-section" id="login-section">
                 <div className="auth-container">
                     <div className="auth-toggle">
                         <button

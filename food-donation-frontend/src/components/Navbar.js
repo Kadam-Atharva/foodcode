@@ -63,7 +63,17 @@ function Navbar({ currentUser, onLogout }) {
                             <button onClick={onLogout} className="btn btn-outline">Logout</button>
                         </div>
                     ) : (
-                        <span className="login-prompt">Please login on the Home page</span>
+                        <Link 
+                            to="/" 
+                            className="btn btn-outline"
+                            onClick={() => {
+                                setTimeout(() => {
+                                    document.getElementById('login-section')?.scrollIntoView({ behavior: 'smooth' });
+                                }, 100);
+                            }}
+                        >
+                            Login
+                        </Link>
                     )}
                 </div>
             </div>
