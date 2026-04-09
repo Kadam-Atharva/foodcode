@@ -32,7 +32,10 @@ function DonationCard({ donation, onRequestClick, currentUser, showActions = tru
             <div className="card-body">
                 {donation.imageUrl && (
                     <div className="donation-image">
-                        <img src={donation.imageUrl} alt={donation.foodType} />
+                        <img 
+                            src={donation.imageUrl.startsWith('/uploads') ? `http://localhost:8080${donation.imageUrl}` : donation.imageUrl} 
+                            alt={donation.foodType} 
+                        />
                     </div>
                 )}
                 <p className="card-info">

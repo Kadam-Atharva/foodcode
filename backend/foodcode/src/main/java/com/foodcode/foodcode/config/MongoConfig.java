@@ -1,23 +1,11 @@
 package com.foodcode.foodcode.config;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
-public class MongoConfig extends AbstractMongoClientConfiguration {
-
-    @Override
-    protected String getDatabaseName() {
-        return "foodcode";
-    }
-
-    @Bean
-    public MongoClient mongoClient() {
-        return MongoClients.create(
-                "mongodb url"
-        );
-    }
+@EnableMongoRepositories(basePackages = "com.foodcode.foodcode.repository")
+public class MongoConfig {
+    // Spring Boot auto-configures MongoDB connection using application.properties
+    // No custom bean needed for local MongoDB
 }
