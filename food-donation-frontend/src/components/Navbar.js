@@ -67,8 +67,8 @@ function Navbar({ currentUser, onLogout }) {
                         </div>
                     ) : (
                         <div className="nav-auth-buttons">
-                            <Link to="/" className="btn btn-outline btn-small nav-login-btn">Login</Link>
-                            <Link to="/" className="btn btn-primary btn-small nav-signup-btn">Sign Up</Link>
+                            <Link to="/" state={{ scrollToAuth: true, isLogin: true }} className="btn btn-outline btn-small nav-login-btn">Login</Link>
+                            <Link to="/" state={{ scrollToAuth: true, isLogin: false }} className="btn btn-primary btn-small nav-signup-btn">Sign Up</Link>
                         </div>
                     )}
                 </div>

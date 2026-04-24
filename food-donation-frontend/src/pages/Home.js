@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { userAPI } from '../services/api';
 import { Leaf, Zap, Users, HeartHandshake, ArrowRight, CheckCircle2 } from 'lucide-react';
 import heroImage from '../assets/images/hero-image.png';
@@ -18,6 +18,20 @@ function Home({ onLogin }) {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const authSectionRef = useRef(null);
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.scrollToAuth) {
+            setShowLogin(location.state.isLogin);
+            // Give it a tiny delay to ensure the DOM is ready if navigating from another page
+            setTimeout(() => {
+                authSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+            
+            // Replace state to avoid re-triggering on refresh
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
 
     const handleChange = (e) => {
         setFormData({
