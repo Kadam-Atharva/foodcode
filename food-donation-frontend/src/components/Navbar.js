@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { Leaf } from 'lucide-react';
 
 function Navbar({ currentUser, onLogout }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const location = useLocation();
 
     return (
         <nav className="navbar">
             <div className="nav-container">
                 <Link to="/" className="nav-logo">
-                    <span className="logo-icon">FS</span>
-                    <span className="logo-text">FoodShare</span>
+                    <div className="logo-icon-wrapper">
+                        <Leaf size={24} className="logo-leaf" />
+                    </div>
+                    <span className="logo-text">FoodCode</span>
                 </Link>
 
                 <button
@@ -59,10 +63,13 @@ function Navbar({ currentUser, onLogout }) {
                             <Link to="/profile" className="user-name-link">
                                 <span className="user-name">{currentUser.name}</span>
                             </Link>
-                            <button onClick={onLogout} className="btn btn-outline">Logout</button>
+                            <button onClick={onLogout} className="btn btn-outline btn-small">Logout</button>
                         </div>
                     ) : (
-                        <span className="login-prompt">Please login on the Home page</span>
+                        <div className="nav-auth-buttons">
+                            <Link to="/" className="btn btn-outline btn-small nav-login-btn">Login</Link>
+                            <Link to="/" className="btn btn-primary btn-small nav-signup-btn">Sign Up</Link>
+                        </div>
                     )}
                 </div>
             </div>
