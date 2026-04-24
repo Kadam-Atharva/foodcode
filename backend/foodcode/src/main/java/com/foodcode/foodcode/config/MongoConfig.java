@@ -19,7 +19,7 @@ public class MongoConfig {
     @Bean
     public MongoClient mongoClient() {
         return MongoClients.create(
-                "mongodb+srv://new_user:atharva@cluster0.7xf2l.mongodb.net"
+                ""
         );
     }
 }
