@@ -7,7 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,6 +21,7 @@ public class User {
     private String name;
 
     @Indexed(unique = true)
+    @SuppressWarnings("unused")
     private String email;
 
     public String getPhoneNumber() {
